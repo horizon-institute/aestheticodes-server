@@ -1,0 +1,42 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath 'com.google.appengine:gradle-appengine-plugin:1.9.15'
+	}
+}
+
+apply plugin: 'war'
+apply plugin: 'appengine'
+
+sourceCompatibility = 1.7
+version = '1.0'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.15'
+	compile "javax.servlet:servlet-api:2.5"
+	compile "com.google.appengine:appengine-api-1.0-sdk:1.9.15"
+}
+
+appengine {
+	downloadSdk = true
+
+	appcfg {
+		email = 'kevin.glover@gmail.com'
+		oauth2 = true
+
+		app {
+			id = 'aestheticodes'
+		}
+	}
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.1'
+}
