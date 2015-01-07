@@ -16,46 +16,37 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-buildscript {
-	repositories {
-		mavenCentral()
+
+package uk.ac.horizon.aestheticodes.server;
+
+import com.googlecode.objectify.Objectify;
+import com.googlecode.objectify.ObjectifyFactory;
+import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.cmd.Loader;
+import com.googlecode.objectify.cmd.Saver;
+import uk.ac.horizon.aestheticodes.model.Experience;
+import uk.ac.horizon.aestheticodes.model.ExperienceList;
+import uk.ac.horizon.aestheticodes.model.UserExperiences;
+
+public class DataStore
+{
+	static
+	{
+		factory().register(Experience.class);
+		factory().register(UserExperiences.class);
 	}
-	dependencies {
-		classpath 'com.google.appengine:gradle-appengine-plugin:1.9.17'
+
+	public static Loader load() { return get().load(); }
+
+	public static Saver save() { return get().save(); }
+
+	public static Objectify get()
+	{
+		return ObjectifyService.ofy();
 	}
-}
 
-repositories {
-	mavenCentral();
-}
-
-apply plugin: 'java'
-apply plugin: 'war'
-apply plugin: 'appengine'
-
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
-
-dependencies {
-	appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.17'
-	compile 'com.google.appengine:appengine-endpoints:1.9.17'
-	compile 'com.google.appengine:appengine-endpoints-deps:1.9.17'
-	compile 'javax.servlet:servlet-api:2.5'
-	compile 'com.googlecode.objectify:objectify:5.1.3'
-}
-
-appengine {
-	downloadSdk = true
-	appcfg {
-		email = 'kevin.glover@gmail.com'
-		oauth2 = true
+	public static ObjectifyFactory factory()
+	{
+		return ObjectifyService.factory();
 	}
-	endpoints {
-		getClientLibsOnBuild = true
-		getDiscoveryDocsOnBuild = true
-	}
-}
-
-task wrapper(type: Wrapper) {
-	gradleVersion = '2.2'
 }

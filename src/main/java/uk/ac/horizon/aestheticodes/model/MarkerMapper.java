@@ -16,46 +16,17 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-buildscript {
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath 'com.google.appengine:gradle-appengine-plugin:1.9.17'
-	}
-}
 
-repositories {
-	mavenCentral();
-}
+package uk.ac.horizon.aestheticodes.model;
 
-apply plugin: 'java'
-apply plugin: 'war'
-apply plugin: 'appengine'
+import com.googlecode.objectify.mapper.Mapper;
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
-
-dependencies {
-	appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.17'
-	compile 'com.google.appengine:appengine-endpoints:1.9.17'
-	compile 'com.google.appengine:appengine-endpoints-deps:1.9.17'
-	compile 'javax.servlet:servlet-api:2.5'
-	compile 'com.googlecode.objectify:objectify:5.1.3'
-}
-
-appengine {
-	downloadSdk = true
-	appcfg {
-		email = 'kevin.glover@gmail.com'
-		oauth2 = true
-	}
-	endpoints {
-		getClientLibsOnBuild = true
-		getDiscoveryDocsOnBuild = true
+public class MarkerMapper implements Mapper<String, Marker>
+{
+	@Override
+	public String getKey(Marker value)
+	{
+		return value.getCode();
 	}
 }
 
-task wrapper(type: Wrapper) {
-	gradleVersion = '2.2'
-}
