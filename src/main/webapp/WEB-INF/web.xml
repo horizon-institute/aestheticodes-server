@@ -20,6 +20,25 @@
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
 	<servlet>
+		<servlet-name>experiencePage</servlet-name>
+		<servlet-class>uk.ac.horizon.aestheticodes.server.ExperiencePageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>experiencePage</servlet-name>
+		<url-pattern>/experience/info/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>experienceFile</servlet-name>
+		<servlet-class>uk.ac.horizon.aestheticodes.server.ExperienceFileServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>experienceFile</servlet-name>
+		<url-pattern>/experience/*</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
 		<servlet-name>SystemServiceServlet</servlet-name>
 		<servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
 		<init-param>

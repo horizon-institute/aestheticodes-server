@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Article">
+<head>
+	<title>{{title}}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#336">
+
+	<meta name="description" content="{{description}}" />
+
+	<meta itemprop="name" content="{{title}}">
+	<meta itemprop="description" content="{{description}}">
+	<meta itemprop="image" content="{{image}}">
+
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="Artcodes">
+	<meta name="twitter:title" content="{{title}}">
+	<meta name="twitter:description" content="{{description}}">
+	<meta name="twitter:creator" content="{{author}}">
+	<meta name="twitter:image:src" content="{{image}}">
+
+	<meta property="og:title" content="{{title}}" />
+	<meta property="og:type" content="article" />
+	<meta property="og:url" content="{{url}}" />
+	<meta property="og:image" content="{{image}}" />
+	<meta property="og:description" content="{{description}}" />
+	<meta property="og:site_name" content="Artcodes" />
+	<!--<meta property="article:published_time" content="2013-09-17T05:59:00+01:00" />
+	<meta property="article:modified_time" content="2013-09-16T19:08:47+01:00" />
+	<meta property="article:section" content="Article Section" />
+	<meta property="article:tag" content="Article Tag" />
+	<meta property="fb:admins" content="Facebook numberic ID" />-->
+	<style>
+		body {
+		margin: 0px;
+		font-family: sans-serif;
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: flex;
+		-webkit-box-align: start;
+		-webkit-align-items: flex-start;
+		align-items: flex-start;
+		}
+
+		.icon {
+		max-height: 32px;
+		max-width: 32px;
+		margin-right: 16px;
+		}
+
+		.title {
+		font-size: 150%;
+		font-weight: bold;
+		-webkit-box-flex: 1;
+		-webkit-flex: 1;
+		flex: 1;
+		}
+
+		.content {
+		-webkit-box-flex: 1;
+		-webkit-flex: 1;
+		flex: 1;
+		margin: 16px;
+		}
+
+		.desc {
+		text-align: justify;
+		margin-top: 16px;
+		margin-bottom: 16px;
+		}
+
+		.apps {
+		display: -webkit-box;
+		display: -webkit-flex;
+		display: flex;
+		-webkit-box-align: center;
+		-webkit-align-items: center;
+		align-items: center;
+		-webkit-justify-content: center;
+		justify-content: center;
+		}
+
+		.app {
+		margin: 10px;
+		}
+
+		.button {
+		text-decoration: none;
+		padding: 10px 20px;
+		background: #336;
+		border-radius: 4px;
+		color: #FFF;
+		margin-top: 16px;
+		}
+
+		@media screen and (orientation:portrait) {
+			body {
+				display: block;
+			}
+
+			.image {
+				width: 100%;
+			}
+		}
+	</style>
+	<script type="javascript">
+		if(/Android/i.test(navigator.userAgent))
+		{
+			document.getElementById('apapp').style.display = 'none';
+		};
+
+		if(/iPhone|iPad|iPod/i.test(navigator.userAgent))
+		{
+			document.getElementById('goapp').style.display = 'none';
+		};
+	</script>
+</head>
+<body>
+<img class="image" src="{{image}}" />
+
+<div class="content">
+	<div style="display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center">
+		<img class="icon" src="{{icon}}" />
+
+		<div class="title">{{title}}</div>
+	</div>
+	<div class="desc">{{description}}</div>
+
+	<div class="apps">
+		<a class="app" id="goapp" href="https://play.google.com/store/apps/details?id=uk.ac.horizon.aestheticodes">
+			<img alt="Artcodes app on Google Play"
+			     src="https://developer.android.com/images/brand/en_app_rgb_wo_45.png" />
+		</a>
+
+		<a class="app" id="apapp" href="https://itunes.apple.com/gb/app/aestheticodes/id703429621?mt=8&uo=4"
+		   target="itunes_store">
+			<img alt="Artcodes app on iTunes"
+			     src="https://linkmaker.itunes.apple.com/htmlResources/assets/en_us//images/web/linkmaker/badge_appstore-lrg.png">
+		</a>
+	</div>
+
+	<div class="apps">
+		<a class="button" href="https://aestheticodes.appspot.com/experience/{{id}}.artcode">
+			Open in Artcodes
+		</a>
+	</div>
+</div>
+</body>
+
+</html>

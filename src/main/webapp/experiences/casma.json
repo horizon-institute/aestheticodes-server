@@ -1,0 +1,26 @@
+{
+    "markers": [
+        {
+            "code": "1:1:4:6:6",
+            "editable": false,
+            "showDetail": true,
+            "title": "CaSMa",
+            "description": "CASMA: CITIZEN-CENTRIC APPROACHES TO SOCIAL MEDIA ANALYSIS.\nThe CaSMa project is working to address the ethical challenges around social media research by designing tools and services to enable users to gain more control of their personal data. CaSMa is looking at solutions that put people at the centre of human data by introducing a novel citizen-centred approach to social media analysis.",
+            "image": "http://casma.wp.horizon.ac.uk/wp-content/uploads/2014/11/cropped-CaSMa-Banner-1260x240.jpg",
+            "action": "http://casma.wp.horizon.ac.uk/"
+        }
+    ],
+    "id": "casma",
+    "name": "CaSMa",
+    "description": "CASMA: CITIZEN-CENTRIC APPROACHES TO SOCIAL MEDIA ANALYSIS.\nThe CaSMa project is working to address the ethical challenges around social media research by designing tools and services to enable users to gain more control of their personal data. CaSMa is looking at solutions that put people at the centre of human data by introducing a novel citizen-centred approach to social media analysis.",
+    "icon": "http://www.wornchaos.org/experiences/casma.png",
+    "image": "http://casma.wp.horizon.ac.uk/wp-content/uploads/2014/11/cropped-CaSMa-Banner-1260x240.jpg",
+    "minRegions": 5,
+    "maxRegions": 5,
+    "maxEmptyRegions": 0,
+    "maxRegionValue": 6,
+    "validationRegions": 2,
+    "validationRegionValue": 1,
+    "checksumModulo": 6,
+    "threshold": "temporalTile"
+}

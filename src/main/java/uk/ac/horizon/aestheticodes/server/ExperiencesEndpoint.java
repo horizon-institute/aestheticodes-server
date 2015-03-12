@@ -23,6 +23,7 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
+import com.google.api.server.spi.response.NotFoundException;
 import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.Key;
@@ -59,7 +60,7 @@ public class ExperiencesEndpoint
 			path = "addDefault",
 			httpMethod = ApiMethod.HttpMethod.PUT
 	)
-	public void addDefault(@Named("experienceID") String experienceID, User user) throws UnauthorizedException
+	public void addDefault(@Named("experienceID") String experienceID, User user) throws UnauthorizedException, NotFoundException
 	{
 		if (user == null)
 		{
@@ -72,22 +73,79 @@ public class ExperiencesEndpoint
 			throw new UnauthorizedException("Admin users only");
 		}
 
-		Experience newExperience = DataStore.load().type(Experience.class).id(experienceID).now();
-		if (newExperience != null)
+		final Experience newExperience = DataStore.load().type(Experience.class).id(experienceID).now();
+		if (newExperience == null)
+		{
+			throw new NotFoundException("Experience " + experienceID + " not found");
+		}
+		else
 		{
 			final List<UserExperiences> experiencesList = DataStore.load().type(UserExperiences.class).list();
-			for (UserExperiences experiences : experiencesList)
+			for (final UserExperiences experiences : experiencesList)
 			{
-				experiences.add(newExperience);
-			}
-			DataStore.get().transact(new VoidWork()
-			{
-				@Override
-				public void vrun()
+				if (!experiences.hasExperience(experienceID))
 				{
-					DataStore.save().entities(experiencesList);
+					logger.warning("Updating " + experiences.getUserName());
+					DataStore.get().transact(new VoidWork()
+					{
+						@Override
+						public void vrun()
+						{
+							experiences.add(newExperience);
+							DataStore.save().entity(experiences);
+						}
+					});
 				}
-			});
+				else
+				{
+					logger.warning("User " + experiences.getUserName() + " already has experience");
+				}
+			}
+		}
+	}
+
+	@ApiMethod(
+			name = "removeDefault",
+			path = "removeDefault",
+			httpMethod = ApiMethod.HttpMethod.PUT
+	)
+	public void removeDefault(@Named("experienceID") final String experienceID, User user) throws UnauthorizedException, NotFoundException
+	{
+		if (user == null)
+		{
+			throw new UnauthorizedException("Authorization Required");
+		}
+
+		UserExperiences userExperiences = getExperiences(user);
+		if (!userExperiences.isAdmin())
+		{
+			throw new UnauthorizedException("Admin users only");
+		}
+
+		final Experience newExperience = DataStore.load().type(Experience.class).id(experienceID).now();
+		if (newExperience == null)
+		{
+			throw new NotFoundException("Experience " + experienceID + " not found");
+		}
+		else
+		{
+			final List<UserExperiences> experiencesList = DataStore.load().type(UserExperiences.class).list();
+			for (final UserExperiences experiences : experiencesList)
+			{
+				if (experiences.hasExperience(experienceID))
+				{
+					logger.warning("Updating " + experiences.getUserName());
+					DataStore.get().transact(new VoidWork()
+					{
+						@Override
+						public void vrun()
+						{
+							experiences.remove(experienceID);
+							DataStore.save().entity(experiences);
+						}
+					});
+				}
+			}
 		}
 	}
 
@@ -101,7 +159,7 @@ public class ExperiencesEndpoint
 		final ExperienceResults results = new ExperienceResults();
 		final List<Experience> toSave = new ArrayList<>();
 
-		if(experiences != null)
+		if (experiences != null)
 		{
 			for (Experience experience : experiences.getExperiences())
 			{
@@ -124,9 +182,26 @@ public class ExperiencesEndpoint
 						removal.setOp(Experience.Operation.remove);
 						results.getExperiences().put(experience.getId(), removal);
 					}
-					else if (existing.getVersion() == null || !existing.getVersion().equals(experience.getVersion()))
+					else if (experience.getVersion() == null || experience.getVersion() < existing.getVersion())
 					{
 						results.getExperiences().put(experience.getId(), existing);
+					}
+				}
+				else if (experience.getOp() == Experience.Operation.add)
+				{
+					Experience existing = null;
+					if (experience.getId() != null)
+					{
+						existing = DataStore.load().type(Experience.class).id(experience.getId()).now();
+					}
+
+					if (existing != null)
+					{
+						userExperiences.add(existing);
+						if (experience.getVersion() == null || experience.getVersion() < existing.getVersion())
+						{
+							results.getExperiences().put(experience.getId(), existing);
+						}
 					}
 				}
 				else if (user != null)
@@ -161,11 +236,12 @@ public class ExperiencesEndpoint
 						}
 						else
 						{
-							experience.setOriginalID(experience.getId());
+							experience.setOriginalID(existing.getId());
 							experience.setId(UUID.randomUUID().toString());
+							experience.setName("Copy of " + existing.getName());
 							toSave.add(experience);
 
-							results.getExperiences().put(experience.getOriginalID(), experience);
+							results.getExperiences().put(experience.getId(), experience);
 							userExperiences.add(experience);
 						}
 					}

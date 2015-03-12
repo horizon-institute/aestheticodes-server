@@ -42,7 +42,7 @@ public class UserExperiences implements Iterable<Experience>
 	private boolean admin = false;
 
 	@Load
-	private List<Ref<Experience>> experiences = new ArrayList<Ref<Experience>>();
+	private List<Ref<Experience>> experiences = new ArrayList<>();
 
 	public String getUserName()
 	{

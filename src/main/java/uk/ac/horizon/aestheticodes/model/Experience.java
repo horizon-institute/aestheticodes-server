@@ -21,6 +21,7 @@ package uk.ac.horizon.aestheticodes.model;
 
 import com.google.api.server.spi.config.AnnotationBoolean;
 import com.google.api.server.spi.config.ApiResourceProperty;
+import com.google.appengine.repackaged.org.codehaus.jackson.annotate.JsonIgnore;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
@@ -38,7 +39,7 @@ public class Experience
 {
 	public static enum Operation
 	{
-		create, retrieve, update, remove, delete
+		create, retrieve, update, add, remove, delete
 	}
 
 	public static enum Threshold
@@ -55,7 +56,9 @@ public class Experience
 	private String icon;
 	private String image;
 	private String description;
+	private String callback;
 	private Integer version;
+	@JsonIgnore
 	private Key<UserExperiences> owner;
 
 	private String originalID;
@@ -390,6 +393,11 @@ public class Experience
 		return true;
 	}
 
+	public String getCallback()
+	{
+		return callback;
+	}
+
 	public String getId()
 	{
 		return id;
@@ -433,6 +441,11 @@ public class Experience
 	public void setImage(String image)
 	{
 		this.image = image;
+	}
+
+	public void setCallback(String callback)
+	{
+		this.callback = callback;
 	}
 
 	public void setDescription(String description)

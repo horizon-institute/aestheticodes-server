@@ -1,8 +1,9 @@
 {
-    "uk.ac.horizon.aestheticodes.carolan": "uk.ac.horizon.aestheticodes.carolan.json",
-    "uk.ac.horizon.aestheticodes.default": "uk.ac.horizon.aestheticodes.default.json",
-    "com.dorchesterdorset": "com.dorchesterdorset.json",
-    "com.wanderanywhere": "com.wanderanywhere.json",
-    "uk.co.tentlondon": "uk.co.tentlondon.json",
-    "org.cropsforthefuture": "org.cropsforthefuture.json"
+    "uk.ac.horizon.aestheticodes.carolan": "http://www.wornchaos.org/experiences/uk.ac.horizon.aestheticodes.carolan.json",
+    "uk.ac.horizon.aestheticodes.default": "http://www.wornchaos.org/experiences/uk.ac.horizon.aestheticodes.default.json",
+    "com.dorchesterdorset": "http://www.wornchaos.org/experiences/com.dorchesterdorset.json",
+    "com.wanderanywhere": "http://www.wornchaos.org/experiences/com.wanderanywhere.json",
+    "uk.co.tentlondon": "http://www.wornchaos.org/experiences/uk.co.tentlondon.json",
+    "org.cropsforthefuture": "http://www.wornchaos.org/experiences/org.cropsforthefuture.json",
+    "casma": "http://www.wornchaos.org/experiences/casma.json"
 }
