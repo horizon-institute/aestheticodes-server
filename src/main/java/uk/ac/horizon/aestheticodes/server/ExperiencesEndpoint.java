@@ -56,6 +56,16 @@ public class ExperiencesEndpoint
 	private static final String defaultExperiences = "-default-";
 
 	@ApiMethod(
+			name = "getRecommended",
+			path = "getRecommended",
+			httpMethod = ApiMethod.HttpMethod.GET
+	)
+	public List<Experience> getRecommended(@Named("lat") double lat, @Named("lon") double lon)
+	{
+		return null;
+	}
+
+	@ApiMethod(
 			name = "addDefault",
 			path = "addDefault",
 			httpMethod = ApiMethod.HttpMethod.PUT
@@ -161,6 +171,7 @@ public class ExperiencesEndpoint
 
 		if (experiences != null)
 		{
+			logger.info("Updating using version " + experiences.getVersion());
 			for (Experience experience : experiences.getExperiences())
 			{
 				logger.info(experience.getOp() + " " + experience.getId());
@@ -178,9 +189,12 @@ public class ExperiencesEndpoint
 
 					if (existing == null)
 					{
-						Experience removal = new Experience();
-						removal.setOp(Experience.Operation.remove);
-						results.getExperiences().put(experience.getId(), removal);
+						if(user != null)
+						{
+							Experience removal = new Experience();
+							removal.setOp(Experience.Operation.remove);
+							results.getExperiences().put(experience.getId(), removal);
+						}
 					}
 					else if (experience.getVersion() == null || experience.getVersion() < existing.getVersion())
 					{
@@ -226,24 +240,31 @@ public class ExperiencesEndpoint
 					else if (experience.getOp() == Experience.Operation.update)
 					{
 						Experience existing = DataStore.load().type(Experience.class).id(experience.getId()).now();
-						Key<UserExperiences> experiencesKey = Key.create(userExperiences);
-						if (existing.getOwner() == null || experiencesKey.equals(existing.getOwner()))
+						if (existing != null)
 						{
-							toSave.add(experience);
+							Key<UserExperiences> experiencesKey = Key.create(userExperiences);
+							if (existing.getOwner() == null || experiencesKey.equals(existing.getOwner()))
+							{
+								toSave.add(experience);
 
-							results.getExperiences().put(experience.getId(), experience);
-							userExperiences.add(experience);
-						}
-						else
-						{
-							experience.setOriginalID(existing.getId());
-							experience.setId(UUID.randomUUID().toString());
-							experience.setName("Copy of " + existing.getName());
-							toSave.add(experience);
+								results.getExperiences().put(experience.getId(), experience);
+								userExperiences.add(experience);
+							}
+							else
+							{
+								experience.setOriginalID(existing.getId());
+								experience.setId(UUID.randomUUID().toString());
+								if (experience.getName() == null || experience.getName().equals(existing.getName()))
+								{
+									experience.setName("Copy of " + existing.getName());
+								}
+								toSave.add(experience);
 
-							results.getExperiences().put(experience.getId(), experience);
-							userExperiences.add(experience);
+								results.getExperiences().put(experience.getId(), experience);
+								userExperiences.add(experience);
+							}
 						}
+						// TODO else do something???
 					}
 					else if (experience.getOp() == Experience.Operation.remove)
 					{

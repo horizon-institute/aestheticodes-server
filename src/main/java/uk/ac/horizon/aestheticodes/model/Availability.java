@@ -1,7 +1,7 @@
 /*
  * Aestheticodes recognises a different marker scheme that allows the
  * creation of aesthetically pleasing, even beautiful, codes.
- * Copyright (C) 2014  Aestheticodes
+ * Copyright (C) 2013-2015  The University of Nottingham
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as published
@@ -19,14 +19,77 @@
 
 package uk.ac.horizon.aestheticodes.model;
 
-import com.googlecode.objectify.mapper.Mapper;
-
-public class MarkerMapper implements Mapper<String, Marker>
+public class Availability
 {
-	@Override
-	public String getKey(Marker value)
+	private Double lat;
+	private Double lon;
+	private String name;
+	private Long start;
+	private Long end;
+	private String address;
+
+	public Availability()
 	{
-		return value.getCode();
+
+	}
+
+	public String getAddress()
+	{
+		return address;
+	}
+
+	public Long getEnd()
+	{
+		return end;
+	}
+
+	public Double getLat()
+	{
+		return lat;
+	}
+
+	public Double getLon()
+	{
+		return lon;
+	}
+
+	public void setAddress(String address)
+	{
+		this.address = address;
+	}
+
+	public void setEnd(Long end)
+	{
+		this.end = end;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+
+	public Long getStart()
+	{
+		return start;
+	}
+
+	public void setStart(Long start)
+	{
+		this.start = start;
+	}
+
+	public void setLat(double lat)
+	{
+		this.lat = lat;
+	}
+
+	public void setLon(double lon)
+	{
+		this.lon = lon;
 	}
 }
-

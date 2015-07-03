@@ -19,15 +19,14 @@
 
 package uk.ac.horizon.aestheticodes.model;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 public class ExperienceResults
 {
-	private final Map<String, Experience> experiences = new HashMap<String, Experience>();
-
+	private final Map<String, Experience> experiences = new HashMap<>();
 	public Map<String, Experience> getExperiences()
 	{
 		return experiences;
