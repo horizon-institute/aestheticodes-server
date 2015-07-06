@@ -39,8 +39,8 @@ public class Experience
 		create, retrieve, update, deleted, add, remove
 	}
 
-	private final List<Marker> markers = new ArrayList<>();
-	private final List<Availability> availabilities = new ArrayList<>();
+	private List<Marker> markers = new ArrayList<>();
+	private List<Availability> availabilities = new ArrayList<>();
 
 	@Id
 	private String id;
