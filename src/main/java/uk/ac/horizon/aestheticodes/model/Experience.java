@@ -81,26 +81,6 @@ public class Experience
 		return availabilities;
 	}
 
-	public Key<UserExperiences> getOwner()
-	{
-		return owner;
-	}
-
-	public Long getUpdated()
-	{
-		return updated;
-	}
-
-	public void setOwner(UserExperiences owner)
-	{
-		this.owner = Key.create(UserExperiences.class, owner.getUserID());
-	}
-
-	public void setUpdated(Long updated)
-	{
-		this.updated = updated;
-	}
-
 	public String getCallback()
 	{
 		return callback;
@@ -131,7 +111,9 @@ public class Experience
 		this.description = description;
 	}
 
-	public boolean getEmbeddedChecksum()
+	public String getDetector() { return detector; }
+
+	public Boolean getEmbeddedChecksum()
 	{
 		return embeddedChecksum;
 	}
@@ -169,6 +151,18 @@ public class Experience
 	public void setImage(String image)
 	{
 		this.image = image;
+	}
+
+	public Marker getMarker(String code)
+	{
+		for(Marker marker: markers)
+		{
+			if(code.equals(marker.getCode()))
+			{
+				return marker;
+			}
+		}
+		return null;
 	}
 
 	public List<Marker> getMarkers()
@@ -226,18 +220,6 @@ public class Experience
 		this.name = name;
 	}
 
-	public Marker getMarker(String code)
-	{
-		for(Marker marker: markers)
-		{
-			if(code.equals(marker.getCode()))
-			{
-				return marker;
-			}
-		}
-		return null;
-	}
-
 	public String getNextUnusedMarker()
 	{
 		if(markers.isEmpty())
@@ -274,87 +256,6 @@ public class Experience
 		}
 	}
 
-	List<Integer> getNextCode(List<Integer> code)
-	{
-		if (code == null)
-		{
-			int size = minRegions;
-			code = new ArrayList<>();
-			for (int index = 0; index < size; index++)
-			{
-				code.add(1);
-			}
-			return code;
-		}
-
-		int size = code.size();
-		for (int i = (size - 1); i >= 0; i--)
-		{
-			int number = code.get(i);
-			int value = number + 1;
-			code.set(i, value);
-			if (value <= maxRegionValue)
-			{
-				break;
-			}
-			else if (i == 0)
-			{
-				if (size == maxRegions)
-				{
-					return null;
-				}
-				else
-				{
-					size++;
-					code = new ArrayList<>();
-					for (int index = 0; index < size; index++)
-					{
-						code.add(1);
-					}
-					return code;
-				}
-			}
-			else
-			{
-				number = code.get(i - 1);
-				value = number + 1;
-				code.set(i, value);
-			}
-		}
-
-		return code;
-	}
-
-	public void update()
-	{
-		int maxValue = 3;
-		int minRegion = 100;
-		int maxRegion = 3;
-		for (Marker marker : markers)
-		{
-			String[] values = marker.getCode().split(":");
-			minRegion = Math.min(minRegion, values.length);
-			maxRegion = Math.max(maxRegion, values.length);
-			for (String value : values)
-			{
-				try
-				{
-					int codeValue = Integer.parseInt(value);
-					maxValue = Math.max(maxValue, codeValue);
-				}
-				catch (Exception e)
-				{
-				}
-			}
-		}
-
-		this.maxRegionValue = maxValue;
-		this.minRegions = minRegion;
-		this.minRegions = maxRegion;
-
-		Collections.sort(markers, Marker.comparator);
-	}
-
 	public Operation getOp()
 	{
 		return op;
@@ -375,11 +276,29 @@ public class Experience
 		this.originalID = originalID;
 	}
 
-	public String getDetector() { return detector; }
+	public Key<UserExperiences> getOwner()
+	{
+		return owner;
+	}
+
+	public void setOwner(UserExperiences owner)
+	{
+		this.owner = Key.create(UserExperiences.class, owner.getUserID());
+	}
 
 	public String getThreshold()
 	{
 		return threshold;
+	}
+
+	public Long getUpdated()
+	{
+		return updated;
+	}
+
+	public void setUpdated(Long updated)
+	{
+		this.updated = updated;
 	}
 
 	public Integer getValidationRegionValue()
@@ -455,6 +374,87 @@ public class Experience
 		}
 
 		return hasValidationRegions(markerCodes);
+	}
+
+	public void update()
+	{
+		int maxValue = 3;
+		int minRegion = 100;
+		int maxRegion = 3;
+		for (Marker marker : markers)
+		{
+			String[] values = marker.getCode().split(":");
+			minRegion = Math.min(minRegion, values.length);
+			maxRegion = Math.max(maxRegion, values.length);
+			for (String value : values)
+			{
+				try
+				{
+					int codeValue = Integer.parseInt(value);
+					maxValue = Math.max(maxValue, codeValue);
+				}
+				catch (Exception e)
+				{
+				}
+			}
+		}
+
+		this.maxRegionValue = maxValue;
+		this.minRegions = minRegion;
+		this.minRegions = maxRegion;
+
+		Collections.sort(markers, Marker.comparator);
+	}
+
+	List<Integer> getNextCode(List<Integer> code)
+	{
+		if (code == null)
+		{
+			int size = minRegions;
+			code = new ArrayList<>();
+			for (int index = 0; index < size; index++)
+			{
+				code.add(1);
+			}
+			return code;
+		}
+
+		int size = code.size();
+		for (int i = (size - 1); i >= 0; i--)
+		{
+			int number = code.get(i);
+			int value = number + 1;
+			code.set(i, value);
+			if (value <= maxRegionValue)
+			{
+				break;
+			}
+			else if (i == 0)
+			{
+				if (size == maxRegions)
+				{
+					return null;
+				}
+				else
+				{
+					size++;
+					code = new ArrayList<>();
+					for (int index = 0; index < size; index++)
+					{
+						code.add(1);
+					}
+					return code;
+				}
+			}
+			else
+			{
+				number = code.get(i - 1);
+				value = number + 1;
+				code.set(i, value);
+			}
+		}
+
+		return code;
 	}
 
 	/**
