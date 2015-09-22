@@ -1,7 +1,7 @@
 /*
- * Aestheticodes recognises a different marker scheme that allows the
+ * Artcodes recognises a different marker scheme that allows the
  * creation of aesthetically pleasing, even beautiful, codes.
- * Copyright (C) 2014  Aestheticodes
+ * Copyright (C) 2013-2015  The University of Nottingham
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as published
@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.horizon.aestheticodes.server;
+package uk.ac.horizon.artcodes.server;
 
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;
@@ -25,7 +25,9 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Loader;
 import com.googlecode.objectify.cmd.Saver;
 import uk.ac.horizon.aestheticodes.model.Experience;
-import uk.ac.horizon.aestheticodes.model.ExperienceList;
+import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
+import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
+import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 import uk.ac.horizon.aestheticodes.model.UserExperiences;
 
 public class DataStore
@@ -33,6 +35,9 @@ public class DataStore
 	static
 	{
 		factory().register(Experience.class);
+		factory().register(ExperienceEntry.class);
+		factory().register(ExperienceAvailability.class);
+		factory().register(ExperienceInteraction.class);
 		factory().register(UserExperiences.class);
 	}
 

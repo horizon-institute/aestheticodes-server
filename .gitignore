@@ -1,4 +1,4 @@
 /.gradle
 /.idea
 /build
-src/main/java/uk/ac/horizon/aestheticodes/server/EndpointConstants.java
+EndpointConstants.java

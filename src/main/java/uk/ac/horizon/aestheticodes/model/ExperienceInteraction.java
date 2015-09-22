@@ -19,79 +19,58 @@
 
 package uk.ac.horizon.aestheticodes.model;
 
+import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.Id;
 
-public class Availability
+@Entity
+public class ExperienceInteraction
 {
-	private Double lat;
-	private Double lon;
-	private String name;
-	private Long start;
-	private Long end;
-	private String address;
+	@Id
+	private String uri;
 
-	public Availability()
+	@Index
+	private boolean featured;
+
+	@Index
+	private int interactions;
+
+	public ExperienceInteraction()
 	{
-
 	}
 
-	public String getAddress()
+	public int getInteractions()
 	{
-		return address;
+		return interactions;
 	}
 
-	public Long getEnd()
+	public String getUri()
 	{
-		return end;
+		return uri;
 	}
 
-	public Double getLat()
+	public void increment()
 	{
-		return lat;
+		interactions++;
 	}
 
-	public Double getLon()
+	public boolean isFeatured()
 	{
-		return lon;
+		return featured;
 	}
 
-	public void setAddress(String address)
+	public void setFeatured(boolean featured)
 	{
-		this.address = address;
+		this.featured = featured;
 	}
 
-	public void setEnd(Long end)
+	public void setInteractions(int interactions)
 	{
-		this.end = end;
+		this.interactions = interactions;
 	}
 
-	public String getName()
+	public void setUri(String uri)
 	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public Long getStart()
-	{
-		return start;
-	}
-
-	public void setStart(Long start)
-	{
-		this.start = start;
-	}
-
-	public void setLat(double lat)
-	{
-		this.lat = lat;
-	}
-
-	public void setLon(double lon)
-	{
-		this.lon = lon;
+		this.uri = uri;
 	}
 }

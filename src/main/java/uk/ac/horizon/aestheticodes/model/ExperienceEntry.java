@@ -19,79 +19,79 @@
 
 package uk.ac.horizon.aestheticodes.model;
 
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Ignore;
 import com.googlecode.objectify.annotation.Index;
 
-public class Availability
+@Entity
+public class ExperienceEntry
 {
-	private Double lat;
-	private Double lon;
-	private String name;
-	private Long start;
-	private Long end;
-	private String address;
+	@Id
+	private String id;
 
-	public Availability()
+	@Index
+	private String authorID;
+
+	private String etag;
+
+	private String json;
+
+	@Ignore
+	private double distance;
+
+	public String getPublicID()
 	{
-
+		return "http://aestheticodes.appspot.com/experience/" + id;
 	}
 
-	public String getAddress()
+	public String getAuthorID()
 	{
-		return address;
+		return authorID;
 	}
 
-	public Long getEnd()
+	public void setAuthorID(String authorID)
 	{
-		return end;
+		this.authorID = authorID;
 	}
 
-	public Double getLat()
+	public double getDistance()
 	{
-		return lat;
+		return distance;
 	}
 
-	public Double getLon()
+	public void setDistance(double distance)
 	{
-		return lon;
+		this.distance = distance;
 	}
 
-	public void setAddress(String address)
+	public String getEtag()
 	{
-		this.address = address;
+		return etag;
 	}
 
-	public void setEnd(Long end)
+	public void setEtag(String etag)
 	{
-		this.end = end;
+		this.etag = etag;
 	}
 
-	public String getName()
+	public String getId()
 	{
-		return name;
+		return id;
 	}
 
-	public void setName(String name)
+	public void setId(String id)
 	{
-		this.name = name;
+		this.id = id;
 	}
 
-	public Long getStart()
+	public String getJson()
 	{
-		return start;
+		return json;
 	}
 
-	public void setStart(Long start)
+	public void setJson(String json)
 	{
-		this.start = start;
-	}
-
-	public void setLat(double lat)
-	{
-		this.lat = lat;
-	}
-
-	public void setLon(double lon)
-	{
-		this.lon = lon;
+		this.json = json;
 	}
 }

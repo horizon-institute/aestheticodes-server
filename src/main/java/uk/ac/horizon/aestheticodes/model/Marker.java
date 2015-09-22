@@ -1,5 +1,5 @@
 /*
- * Aestheticodes recognises a different marker scheme that allows the
+ * Artcodes recognises a different marker scheme that allows the
  * creation of aesthetically pleasing, even beautiful, codes.
  * Copyright (C) 2013-2015  The University of Nottingham
  *

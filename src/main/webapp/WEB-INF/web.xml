@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Aestheticodes recognises a different marker scheme that allows the
+  ~ Artcodes recognises a different marker scheme that allows the
   ~ creation of aesthetically pleasing, even beautiful, codes.
-  ~ Copyright (C) 2014  Aestheticodes
+  ~ Copyright (C) 2013-2015  The University of Nottingham
   ~
   ~     This program is free software: you can redistribute it and/or modify
   ~     it under the terms of the GNU Affero General Public License as published
@@ -21,7 +21,7 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
 	<servlet>
 		<servlet-name>experiencePage</servlet-name>
-		<servlet-class>uk.ac.horizon.aestheticodes.server.ExperiencePageServlet</servlet-class>
+		<servlet-class>uk.ac.horizon.artcodes.server.ExperiencePageServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>experiencePage</servlet-name>
@@ -30,20 +30,64 @@
 
 	<servlet>
 		<servlet-name>experienceFile</servlet-name>
-		<servlet-class>uk.ac.horizon.aestheticodes.server.ExperienceFileServlet</servlet-class>
+		<servlet-class>uk.ac.horizon.artcodes.server.ExperienceFileServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>experienceFile</servlet-name>
+		<url-pattern>/experience/file/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>experience</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.ExperienceServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>experience</servlet-name>
 		<url-pattern>/experience/*</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>experiences</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.ExperiencesServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>experiences</servlet-name>
+		<url-pattern>/experiences</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>recommended</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.RecommendedServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>recommended</servlet-name>
+		<url-pattern>/recommended</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>interaction</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.InteractionServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>interaction</servlet-name>
+		<url-pattern>/interaction</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>image</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.ImageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>image</servlet-name>
+		<url-pattern>/image/*</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>SystemServiceServlet</servlet-name>
 		<servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
 		<init-param>
 			<param-name>services</param-name>
-			<param-value>uk.ac.horizon.aestheticodes.server.ExperiencesEndpoint</param-value>
+			<param-value>uk.ac.horizon.artcodes.server.ExperiencesEndpoint</param-value>
 		</init-param>
 	</servlet>
 	<servlet-mapping>

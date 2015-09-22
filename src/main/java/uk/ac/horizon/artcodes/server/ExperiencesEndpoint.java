@@ -1,7 +1,7 @@
 /*
- * Aestheticodes recognises a different marker scheme that allows the
+ * Artcodes recognises a different marker scheme that allows the
  * creation of aesthetically pleasing, even beautiful, codes.
- * Copyright (C) 2014  Aestheticodes
+ * Copyright (C) 2013-2015  The University of Nottingham
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as published
@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.horizon.aestheticodes.server;
+package uk.ac.horizon.artcodes.server;
 
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
@@ -26,6 +26,8 @@ import com.google.api.server.spi.config.Named;
 import com.google.api.server.spi.response.NotFoundException;
 import com.google.api.server.spi.response.UnauthorizedException;
 import com.google.appengine.api.users.User;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.VoidWork;
 import uk.ac.horizon.aestheticodes.model.Experience;
@@ -56,13 +58,31 @@ public class ExperiencesEndpoint
 	private static final String defaultExperiences = "-default-";
 
 	@ApiMethod(
-			name = "getRecommended",
-			path = "getRecommended",
-			httpMethod = ApiMethod.HttpMethod.GET
+			name = "addExperience",
+			path = "addExperience",
+			httpMethod = ApiMethod.HttpMethod.PUT
 	)
-	public List<Experience> getRecommended(@Named("lat") double lat, @Named("lon") double lon)
+	public void addExperience(final Experience experience, User user) throws UnauthorizedException, NotFoundException
 	{
-		return null;
+		if (user == null)
+		{
+			throw new UnauthorizedException("Authorization Required");
+		}
+
+		UserExperiences userExperiences = getExperiences(user);
+		if (!userExperiences.isAdmin())
+		{
+			throw new UnauthorizedException("Admin users only");
+		}
+
+		DataStore.get().transact(new VoidWork()
+		{
+			@Override
+			public void vrun()
+			{
+				DataStore.save().entity(experience);
+			}
+		});
 	}
 
 	@ApiMethod(
@@ -112,6 +132,54 @@ public class ExperiencesEndpoint
 				}
 			}
 		}
+	}
+
+	@ApiMethod(
+			name = "setExperiences",
+			path = "setExperiences",
+			httpMethod = ApiMethod.HttpMethod.PUT
+	)
+	public void setExperiences(@Named("user") String userName, @Named("experiences") final List<String> experiences, final User user) throws UnauthorizedException, NotFoundException
+	{
+		if (user == null)
+		{
+			throw new UnauthorizedException("Authorization Required");
+		}
+
+		UserExperiences userExperiences = getExperiences(user);
+		if (!userExperiences.isAdmin())
+		{
+			throw new UnauthorizedException("Admin users only");
+		}
+
+		final UserExperiences userExperience = DataStore.load().type(UserExperiences.class).id(userName).now();
+		if (userExperience == null)
+		{
+			throw new NotFoundException("User " + userName + " not found");
+		}
+
+		userExperience.clear();
+		for (String experienceID : experiences)
+		{
+			final Experience experience = DataStore.load().type(Experience.class).id(experienceID).now();
+			if (experience != null)
+			{
+				userExperience.add(experience);
+			}
+			else
+			{
+				logger.info("Failed to find " + experienceID);
+			}
+		}
+
+		DataStore.get().transact(new VoidWork()
+		{
+			@Override
+			public void vrun()
+			{
+				DataStore.save().entity(userExperience);
+			}
+		});
 	}
 
 	@ApiMethod(
@@ -166,6 +234,7 @@ public class ExperiencesEndpoint
 	public ExperienceResults update(ExperienceList experiences, final User user)
 	{
 		final UserExperiences userExperiences = getExperiences(user);
+		logger.info("User experience " + userExperiences.getUserName() + ":" + userExperiences.getUserID());
 		final ExperienceResults results = new ExperienceResults();
 		final List<Experience> toSave = new ArrayList<>();
 
@@ -175,6 +244,12 @@ public class ExperiencesEndpoint
 			for (Experience experience : experiences.getExperiences())
 			{
 				logger.info(experience.getOp() + " " + experience.getId());
+				if (experience.getOp() == Experience.Operation.create)
+				{
+					Gson gson = new GsonBuilder().create();
+					logger.info(gson.toJson(experience));
+				}
+
 				if (experience.getOp() == null || experience.getOp() == Experience.Operation.retrieve)
 				{
 					Experience existing = userExperiences.getExperience(experience.getId());
@@ -189,10 +264,10 @@ public class ExperiencesEndpoint
 
 					if (existing == null)
 					{
-						if(user != null)
+						if (user != null)
 						{
 							Experience removal = new Experience();
-							removal.setOp(Experience.Operation.remove);
+							removal.setOperaton(Experience.Operation.remove);
 							results.getExperiences().put(experience.getId(), removal);
 						}
 					}
@@ -271,14 +346,14 @@ public class ExperiencesEndpoint
 						userExperiences.remove(experience.getId());
 
 						Experience removal = new Experience();
-						removal.setOp(Experience.Operation.remove);
+						removal.setOperaton(Experience.Operation.remove);
 						results.getExperiences().put(experience.getId(), removal);
 					}
 				}
 			}
 		}
 
-		if (user != null)
+		if (user != null && userExperiences != null)
 		{
 			for (Experience experience : toSave)
 			{
@@ -303,16 +378,19 @@ public class ExperiencesEndpoint
 					DataStore.save().entity(userExperiences);
 				}
 			});
+
 		}
 
-		for (Experience experience : userExperiences)
+		if(userExperiences != null)
 		{
-			if ((experiences == null || !experiences.hasExperience(experience.getId())) && !results.getExperiences().containsKey(experience.getId()))
+			for (Experience experience : userExperiences)
 			{
-				results.getExperiences().put(experience.getId(), experience);
+				if ((experiences == null || !experiences.hasExperience(experience.getId())) && !results.getExperiences().containsKey(experience.getId()))
+				{
+					results.getExperiences().put(experience.getId(), experience);
+				}
 			}
 		}
-
 
 		return results;
 	}
@@ -321,6 +399,7 @@ public class ExperiencesEndpoint
 	{
 		if (user != null)
 		{
+			logger.info(user.getEmail() + " = " + user.getUserId());
 			if (user.getUserId() != null)
 			{
 				List<UserExperiences> experienceList = DataStore.load().type(UserExperiences.class).filter("userID", user.getUserId()).list();

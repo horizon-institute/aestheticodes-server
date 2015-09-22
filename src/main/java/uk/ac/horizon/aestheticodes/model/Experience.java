@@ -1,5 +1,5 @@
 /*
- * Aestheticodes recognises a different marker scheme that allows the
+ * Artcodes recognises a different marker scheme that allows the
  * creation of aesthetically pleasing, even beautiful, codes.
  * Copyright (C) 2013-2015  The University of Nottingham
  *
@@ -69,8 +69,6 @@ public class Experience
 	private Integer maxRegions;
 	private Integer maxEmptyRegions;
 	private Integer maxRegionValue;
-	private Integer validationRegions;
-	private Integer validationRegionValue;
 	private Integer checksumModulo;
 	private Boolean embeddedChecksum;
 
@@ -113,7 +111,10 @@ public class Experience
 		this.description = description;
 	}
 
-	public String getDetector() { return detector; }
+	public String getDetector()
+	{
+		return detector;
+	}
 
 	public Boolean getEmbeddedChecksum()
 	{
@@ -157,9 +158,9 @@ public class Experience
 
 	public Marker getMarker(String code)
 	{
-		for(Marker marker: markers)
+		for (Marker marker : markers)
 		{
-			if(code.equals(marker.getCode()))
+			if (code.equals(marker.getCode()))
 			{
 				return marker;
 			}
@@ -225,7 +226,7 @@ public class Experience
 	@ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
 	public String getNextUnusedMarker()
 	{
-		if(markers.isEmpty())
+		if (markers.isEmpty())
 		{
 			return "1:1:1:1:1";
 		}
@@ -264,14 +265,26 @@ public class Experience
 		return op;
 	}
 
-	public void setOp(Operation op)
+	public void setOp(String op)
 	{
-		this.op = op;
+		try
+		{
+			this.op = Operation.valueOf(op);
+		}
+		catch (Exception e)
+		{
+
+		}
 	}
 
 	public String getOriginalID()
 	{
 		return originalID;
+	}
+
+	public void setOperaton(Operation operaton)
+	{
+		this.op = operaton;
 	}
 
 	public void setOriginalID(String originalID)
@@ -302,26 +315,6 @@ public class Experience
 	public void setUpdated(Long updated)
 	{
 		this.updated = updated;
-	}
-
-	public Integer getValidationRegionValue()
-	{
-		return validationRegionValue;
-	}
-
-	public void setValidationRegionValue(Integer validationRegionValue)
-	{
-		this.validationRegionValue = validationRegionValue;
-	}
-
-	public Integer getValidationRegions()
-	{
-		return validationRegions;
-	}
-
-	public void setValidationRegions(Integer validationRegions)
-	{
-		this.validationRegions = validationRegions;
 	}
 
 	public Integer getVersion()
@@ -376,7 +369,7 @@ public class Experience
 			return false; // Embedded checksum markers are not valid.
 		}
 
-		return hasValidationRegions(markerCodes);
+		return true;
 	}
 
 	public void update()
@@ -503,31 +496,5 @@ public class Experience
 			}
 		}
 		return maxEmptyRegions >= empty;
-	}
-
-	/**
-	 * It checks the number of validation branches as given in the preferences.
-	 * The code is valid if the number of branches which contains the validation
-	 * code are equal or greater than the number of validation branches
-	 * mentioned in the preferences.
-	 *
-	 * @return true if the number of validation branches are >= validation
-	 * branch value in the preference otherwise it returns false.
-	 */
-	private boolean hasValidationRegions(List<Integer> markerCodes)
-	{
-		if (validationRegions <= 0)
-		{
-			return true;
-		}
-		int validationRegionCount = 0;
-		for (int code : markerCodes)
-		{
-			if (code == validationRegionValue)
-			{
-				validationRegionCount++;
-			}
-		}
-		return validationRegionCount >= validationRegions;
 	}
 }

@@ -1,7 +1,7 @@
 /*
- * Aestheticodes recognises a different marker scheme that allows the
+ * Artcodes recognises a different marker scheme that allows the
  * creation of aesthetically pleasing, even beautiful, codes.
- * Copyright (C) 2014  Aestheticodes
+ * Copyright (C) 2013-2015  The University of Nottingham
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as published
@@ -75,6 +75,11 @@ public class UserExperiences implements Iterable<Experience>
 			}
 		}
 		return null;
+	}
+
+	public void clear()
+	{
+		experiences.clear();
 	}
 
 	public void remove(String id)

@@ -19,28 +19,37 @@
 
 package uk.ac.horizon.aestheticodes.model;
 
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 
-public class Availability
+@Entity
+public class ExperienceAvailability
 {
+	@Id
+	Long id;
+
+	@Index
 	private Double lat;
+
+	@Index
 	private Double lon;
-	private String name;
-	private Long start;
-	private Long end;
-	private String address;
 
-	public Availability()
+	@Index
+	private long start = Long.MIN_VALUE;
+
+	@Index
+	private long end = Long.MAX_VALUE;
+
+	@Index
+	private String uri;
+
+	public ExperienceAvailability()
 	{
 
 	}
 
-	public String getAddress()
-	{
-		return address;
-	}
-
-	public Long getEnd()
+	public long getEnd()
 	{
 		return end;
 	}
@@ -55,32 +64,22 @@ public class Availability
 		return lon;
 	}
 
-	public void setAddress(String address)
+	public String getUri()
 	{
-		this.address = address;
+		return uri;
 	}
 
-	public void setEnd(Long end)
+	public void setEnd(long end)
 	{
 		this.end = end;
 	}
 
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public Long getStart()
+	public long getStart()
 	{
 		return start;
 	}
 
-	public void setStart(Long start)
+	public void setStart(long start)
 	{
 		this.start = start;
 	}
@@ -93,5 +92,41 @@ public class Availability
 	public void setLon(double lon)
 	{
 		this.lon = lon;
+	}
+
+	public boolean isActive(long now)
+	{
+		return start < now && end > now;
+	}
+
+	// in miles
+	private static double distance(double lat1, double lon1, double lat2, double lon2)
+	{
+		double theta = lon1 - lon2;
+		double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+		dist = Math.acos(dist);
+		dist = rad2deg(dist);
+		dist = dist * 60 * 1.1515;
+		return dist;
+	}
+
+	private static double deg2rad(double deg)
+	{
+		return (deg * Math.PI / 180.0);
+	}
+
+	private static double rad2deg(double rad)
+	{
+		return (rad * 180 / Math.PI);
+	}
+
+	public double getMilesFrom(double lat, double lon)
+	{
+		return distance(this.lat, this.lon, lat, lon);
+	}
+
+	public void setUri(String uri)
+	{
+		this.uri = uri;
 	}
 }

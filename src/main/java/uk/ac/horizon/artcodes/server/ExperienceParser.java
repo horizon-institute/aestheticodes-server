@@ -1,7 +1,7 @@
 /*
- * Aestheticodes recognises a different marker scheme that allows the
+ * Artcodes recognises a different marker scheme that allows the
  * creation of aesthetically pleasing, even beautiful, codes.
- * Copyright (C) 2015  Aestheticodes
+ * Copyright (C) 2013-2015  The University of Nottingham
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as published
@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.horizon.aestheticodes.server;
+package uk.ac.horizon.artcodes.server;
 
 import com.google.appengine.repackaged.org.codehaus.jackson.annotate.JsonIgnore;
 import com.google.gson.*;
@@ -30,51 +30,9 @@ import java.util.Map;
 
 public class ExperienceParser
 {
-	public static class MarkerMapAdapter implements JsonDeserializer<Map<String, Marker>>, JsonSerializer<Map<String, Marker>>
-	{
-		@Override
-		public Map<String, Marker> deserialize(JsonElement json, Type unused, JsonDeserializationContext context)
-				throws JsonParseException
-		{
-			if (!json.isJsonArray())
-			{
-				throw new JsonParseException("Unexpected type: " + json.getClass().getSimpleName());
-			}
-
-			Map<String, Marker> result = new HashMap<String, Marker>();
-			JsonArray array = json.getAsJsonArray();
-			for (JsonElement element : array)
-			{
-				if (element.isJsonObject())
-				{
-					Marker marker = context.deserialize(element, Marker.class);
-					result.put(marker.getCode(), marker);
-				}
-				else
-				{
-					throw new JsonParseException("some meaningful message");
-				}
-			}
-			return result;
-		}
-
-		@Override
-		public JsonElement serialize(Map<String, Marker> src, Type typeOfSrc, JsonSerializationContext context)
-		{
-			final JsonArray array = new JsonArray();
-			for (Marker marker : src.values())
-			{
-				array.add(context.serialize(marker));
-			}
-			return array;
-		}
-	}
-
 	public static Gson createParser()
 	{
 		GsonBuilder build = new GsonBuilder();
-		build.registerTypeAdapter(new TypeToken<Map<String, Marker>>()
-		{}.getType(), new MarkerMapAdapter());
 		build.addSerializationExclusionStrategy(new ExclusionStrategy() {
 			@Override
 			public boolean shouldSkipField(FieldAttributes f)
