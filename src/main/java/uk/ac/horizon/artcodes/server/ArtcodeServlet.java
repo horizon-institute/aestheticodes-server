@@ -28,18 +28,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 abstract class ArtcodeServlet extends HttpServlet
 {
 	private static final Logger logger = Logger.getLogger(ArtcodeServlet.class.getName());
-//	Enumeration<String> headers = req.getHeaderNames();
-//	while (headers.hasMoreElements())
-//	{
-//		String headerName = headers.nextElement();
-//		logger.info(headerName + " = " + req.getHeader(headerName));
-//	}
+	private static final Set<String> allowedClients = new HashSet<>();
+
+	static
+	{
+		allowedClients.add(EndpointConstants.WEB_CLIENT_ID);
+		allowedClients.add(EndpointConstants.ANDROID_CLIENT_ID);
+		allowedClients.add(EndpointConstants.IOS_CLIENT_ID);
+	}
 
 	protected static void verifyUser(User user) throws HTTPException
 	{
@@ -51,12 +52,7 @@ abstract class ArtcodeServlet extends HttpServlet
 
 	protected static User getUser()
 	{
-		OAuthService oauth = OAuthServiceFactory.getOAuthService();
-
-		Set<String> allowedClients = new HashSet<>();
-		allowedClients.add(EndpointConstants.WEB_CLIENT_ID);
-		allowedClients.add(EndpointConstants.ANDROID_CLIENT_ID);
-		allowedClients.add(EndpointConstants.IOS_CLIENT_ID);
+		final OAuthService oauth = OAuthServiceFactory.getOAuthService();
 
 		try
 		{

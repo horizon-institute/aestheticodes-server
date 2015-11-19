@@ -85,17 +85,26 @@ public class ExperienceItems
 
 	private static ExperienceItems create(Gson gson, JsonElement element, String experienceID) throws HTTPException
 	{
-		ExperienceEntry wrapper = gson.fromJson(element, ExperienceEntry.class);
+		final ExperienceEntry wrapper = gson.fromJson(element, ExperienceEntry.class);
 		wrapper.setId(experienceID);
 
-		JsonObject experienceObject = verifyExperience(element);
-		experienceObject.addProperty("id", wrapper.getPublicID());
+		final JsonObject experienceObject = verifyExperience(element);
+		final String fullID = wrapper.getPublicID();
+		if (experienceObject.has("id"))
+		{
+			String existing = experienceObject.get("id").getAsString();
+			if(!fullID.equals(existing))
+			{
+				experienceObject.add("originalID", experienceObject.get("id"));
+			}
+		}
+		experienceObject.addProperty("id", fullID);
 
-		String experienceJson = gson.toJson(experienceObject);
+		final String experienceJson = gson.toJson(experienceObject);
 		wrapper.setJson(experienceJson);
 		wrapper.setEtag(Hashing.md5().hashString(experienceJson, Charset.forName("UTF-8")).toString());
 
-		ExperienceItems items = new ExperienceItems();
+		final ExperienceItems items = new ExperienceItems();
 		items.entry = wrapper;
 
 		JsonArray availabilityArray = experienceObject.getAsJsonArray("availabilities");

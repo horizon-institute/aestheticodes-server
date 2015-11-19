@@ -94,14 +94,14 @@ public class RecommendedServlet extends HttpServlet
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
-		Enumeration<String> headers = req.getHeaderNames();
+		final Enumeration<String> headers = req.getHeaderNames();
 		while (headers.hasMoreElements())
 		{
 			String headerName = headers.nextElement();
 			logger.info(headerName + " = " + req.getHeader(headerName));
 		}
 
-		long now = System.currentTimeMillis();
+		final long now = System.currentTimeMillis();
 		int limit = RecommendedServlet.limit;
 		if (req.getParameter("limit") != null)
 		{
@@ -115,18 +115,63 @@ public class RecommendedServlet extends HttpServlet
 			}
 		}
 
-		Map<String, List<String>> result = new HashMap<>();
-		Set<String> ids = new HashSet<>();
-		Gson gson = new GsonBuilder().create();
+		final Map<String, List<String>> result = new HashMap<>();
+		final Set<String> ids = new HashSet<>();
+		final Gson gson = new GsonBuilder().create();
 
 		try
 		{
-			List<Nearby> nearby = new ArrayList<>();
+			// TODO Add featured
+			logger.info("Results = " + ids.size());
+			if (ids.size() < limit)
+			{
+				List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
+						.filter("featured", true)
+						.list();
+
+				List<String> feturedIDs = new ArrayList<>();
+				for (ExperienceInteraction interaction : interactions)
+				{
+					if (!ids.contains(interaction.getUri()))
+					{
+						List<ExperienceAvailability> availabilities = DataStore.load()
+								.type(ExperienceAvailability.class)
+								.filter("uri", interaction.getUri())
+								.list();
+
+						if(availabilities.isEmpty())
+						{
+							ids.add(interaction.getUri());
+							feturedIDs.add(interaction.getUri());
+						}
+						else
+						{
+							for (ExperienceAvailability availability : availabilities)
+							{
+								if (availability.isActive(now))
+								{
+									ids.add(interaction.getUri());
+									feturedIDs.add(interaction.getUri());
+									break;
+								}
+							}
+						}
+					}
+				}
+
+				if (!feturedIDs.isEmpty())
+				{
+					result.put("featured", feturedIDs);
+				}
+			}
+
+
+			final List<Nearby> nearby = new ArrayList<>();
 			LatLng location = getLocation(req);
 			if (location != null)
 			{
 				// TODO Optimise with grid?
-				List<ExperienceAvailability> availabilities = DataStore.load().type(ExperienceAvailability.class)
+				final List<ExperienceAvailability> availabilities = DataStore.load().type(ExperienceAvailability.class)
 						.filter("lat !=", null)
 						.list();
 
@@ -138,7 +183,7 @@ public class RecommendedServlet extends HttpServlet
 					{
 						try
 						{
-							double distance = availability.getMilesFrom(location.latitude, location.longitude);
+							final double distance = availability.getMilesFrom(location.latitude, location.longitude);
 							logger.info("Distance of " + distance);
 							if (distance < 5)
 							{
@@ -162,7 +207,7 @@ public class RecommendedServlet extends HttpServlet
 					}
 				});
 
-				List<String> nearbyIDs = new ArrayList<>();
+				final List<String> nearbyIDs = new ArrayList<>();
 				for (Nearby nearbyID : nearby)
 				{
 					if (!ids.contains(nearbyID.uri))
@@ -237,14 +282,21 @@ public class RecommendedServlet extends HttpServlet
 							.type(ExperienceAvailability.class)
 							.filter("uri", interaction.getUri())
 							.list();
-
-					for(ExperienceAvailability availability: availabilities)
+					if(availabilities.isEmpty())
 					{
-						if(availability.isActive(now))
+						ids.add(interaction.getUri());
+						popularIDs.add(interaction.getUri());
+					}
+					else
+					{
+						for (ExperienceAvailability availability : availabilities)
 						{
-							ids.add(interaction.getUri());
-							popularIDs.add(interaction.getUri());
-							break;
+							if (availability.isActive(now))
+							{
+								ids.add(interaction.getUri());
+								popularIDs.add(interaction.getUri());
+								break;
+							}
 						}
 					}
 				}

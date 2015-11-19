@@ -60,9 +60,10 @@ public class ExperienceServlet extends ArtcodeServlet
 	private void writeExperience(User user, ExperienceEntry wrapper, HttpServletResponse resp) throws IOException
 	{
 		resp.setContentType("application/x-artcode");
+		resp.setCharacterEncoding("UTF-8");
 		if (wrapper.getEtag() != null)
 		{
-			resp.addHeader("Cache-Control", "max-age=300, stale-while-revalidate=86400");
+			resp.addHeader("Cache-Control", "max-age=120, stale-while-revalidate=604800");
 			resp.addHeader("ETag", wrapper.getEtag());
 		}
 

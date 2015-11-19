@@ -75,6 +75,8 @@ public class ExperiencesEndpoint
 			throw new UnauthorizedException("Admin users only");
 		}
 
+		experience.setOwner(userExperiences);
+
 		DataStore.get().transact(new VoidWork()
 		{
 			@Override
@@ -353,7 +355,7 @@ public class ExperiencesEndpoint
 			}
 		}
 
-		if (user != null && userExperiences != null)
+		if (user != null)
 		{
 			for (Experience experience : toSave)
 			{
@@ -381,14 +383,11 @@ public class ExperiencesEndpoint
 
 		}
 
-		if(userExperiences != null)
+		for (Experience experience : userExperiences)
 		{
-			for (Experience experience : userExperiences)
+			if ((experiences == null || !experiences.hasExperience(experience.getId())) && !results.getExperiences().containsKey(experience.getId()))
 			{
-				if ((experiences == null || !experiences.hasExperience(experience.getId())) && !results.getExperiences().containsKey(experience.getId()))
-				{
-					results.getExperiences().put(experience.getId(), experience);
-				}
+				results.getExperiences().put(experience.getId(), experience);
 			}
 		}
 
