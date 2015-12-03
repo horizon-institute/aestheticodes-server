@@ -21,15 +21,19 @@ package uk.ac.horizon.artcodes.server;
 
 import com.google.appengine.api.users.User;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.googlecode.objectify.VoidWork;
+
 import uk.ac.horizon.aestheticodes.model.Experience;
+import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
+import uk.ac.horizon.aestheticodes.model.ExperienceDeleted;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
+import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,41 +50,39 @@ public class ExperienceServlet extends ArtcodeServlet
 		{
 			User user = getUser();
 			verifyUser(user);
-			String experienceID = getExperienceID(req);
-			ExperienceEntry wrapper = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
-			verifyCanEdit(wrapper, user);
-			DataStore.get().delete().type(ExperienceEntry.class).id(experienceID);
+			final String experienceID = getExperienceID(req);
+			ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
+			verifyCanEdit(entry, user);
+
+
+			final List<ExperienceAvailability> existingAvails = DataStore.load()
+					.type(ExperienceAvailability.class)
+					.filter("uri", entry.getPublicID())
+					.list();
+
+			final ExperienceInteraction interaction = DataStore.load().type(ExperienceInteraction.class).id(entry.getPublicID()).now();
+
+			final ExperienceDeleted deleted = new ExperienceDeleted(entry);
+
+			DataStore.get().transact(new VoidWork()
+			{
+				@Override
+				public void vrun()
+				{
+					if(interaction != null)
+					{
+						DataStore.get().delete().entity(interaction);
+					}
+					DataStore.get().delete().type(ExperienceEntry.class).id(experienceID);
+					DataStore.get().delete().entities(existingAvails);
+					DataStore.get().save().entity(deleted);
+				}
+			});
 		}
 		catch (HTTPException e)
 		{
 			e.writeTo(req, resp);
 		}
-	}
-
-	private void writeExperience(User user, ExperienceEntry wrapper, HttpServletResponse resp) throws IOException
-	{
-		resp.setContentType("application/x-artcode");
-		resp.setCharacterEncoding("UTF-8");
-		if (wrapper.getEtag() != null)
-		{
-			resp.addHeader("Cache-Control", "max-age=120, stale-while-revalidate=604800");
-			resp.addHeader("ETag", wrapper.getEtag());
-		}
-
-		JsonElement element = gson.fromJson(wrapper.getJson(), JsonElement.class);
-		if (element.isJsonObject())
-		{
-			JsonObject jsonObject = element.getAsJsonObject();
-			if (canEdit(wrapper, user))
-			{
-				jsonObject.addProperty("editable", true);
-			}
-			else
-			{
-				jsonObject.remove("editable");
-			}
-		}
-		resp.getWriter().write(gson.toJson(element));
 	}
 
 	@Override
@@ -133,12 +135,6 @@ public class ExperienceServlet extends ArtcodeServlet
 		}
 	}
 
-	private boolean canEdit(ExperienceEntry wrapper, User user)
-	{
-		return user != null && (EndpointConstants.ADMIN_USER.equals(user.getUserId()) || user.getUserId().equals(wrapper.getAuthorID()));
-
-	}
-
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
@@ -173,6 +169,7 @@ public class ExperienceServlet extends ArtcodeServlet
 
 			final ExperienceItems items = ExperienceItems.create(experienceID, req.getReader());
 			items.getEntry().setId(experienceID);
+			items.getEntry().setCreated(existing.getCreated());
 			if (existing.getAuthorID() != null)
 			{
 				items.getEntry().setAuthorID(existing.getAuthorID());
@@ -189,6 +186,42 @@ public class ExperienceServlet extends ArtcodeServlet
 		{
 			e.writeTo(req, resp);
 		}
+	}
+
+	private void writeExperience(User user, ExperienceEntry wrapper, HttpServletResponse resp) throws IOException
+	{
+		resp.setContentType("application/x-artcode");
+		resp.setCharacterEncoding("UTF-8");
+		if(wrapper.getModified() != null)
+		{
+			resp.setDateHeader("Last-Modified", wrapper.getModified().getTime());
+		}
+		if (wrapper.getEtag() != null)
+		{
+			resp.setHeader("Cache-Control", "max-age=300, stale-while-revalidate=604800");
+			resp.setHeader("ETag", wrapper.getEtag());
+		}
+
+//		JsonElement element = gson.fromJson(wrapper.getJson(), JsonElement.class);
+//		if (element.isJsonObject())
+//		{
+//			JsonObject jsonObject = element.getAsJsonObject();
+//			if (canEdit(wrapper, user))
+//			{
+//				jsonObject.addProperty("editable", true);
+//			}
+//			else
+//			{
+//				jsonObject.remove("editable");
+//			}
+//		}
+		resp.getWriter().write(wrapper.getJson());
+	}
+
+	private boolean canEdit(ExperienceEntry wrapper, User user)
+	{
+		return user != null && (EndpointConstants.ADMIN_USER.equals(user.getUserId()) || user.getUserId().equals(wrapper.getAuthorID()));
+
 	}
 
 	private void verifyCanEdit(ExperienceEntry wrapper, User user) throws HTTPException

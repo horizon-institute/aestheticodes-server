@@ -19,6 +19,8 @@
 
 package uk.ac.horizon.artcodes.server;
 
+import com.google.appengine.api.search.Document;
+import com.google.appengine.api.search.Field;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -35,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ExperienceItems
@@ -86,6 +89,7 @@ public class ExperienceItems
 	private static ExperienceItems create(Gson gson, JsonElement element, String experienceID) throws HTTPException
 	{
 		final ExperienceEntry wrapper = gson.fromJson(element, ExperienceEntry.class);
+		wrapper.setCreated(new Date());
 		wrapper.setId(experienceID);
 
 		final JsonObject experienceObject = verifyExperience(element);
@@ -128,6 +132,8 @@ public class ExperienceItems
 				.filter("uri", entry.getPublicID())
 				.list();
 
+		entry.modified();
+
 		final ExperienceInteraction interaction = DataStore.load().type(ExperienceInteraction.class).id(entry.getPublicID()).now();
 
 		DataStore.get().transact(new VoidWork()
@@ -137,7 +143,7 @@ public class ExperienceItems
 			{
 				DataStore.get().delete().entities(existingAvails);
 				DataStore.save().entity(entry);
-				if(!availabilities.isEmpty())
+				if (!availabilities.isEmpty())
 				{
 					DataStore.save().entities(availabilities);
 					if (interaction == null)

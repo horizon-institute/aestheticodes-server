@@ -21,13 +21,12 @@ package uk.ac.horizon.aestheticodes.model;
 
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Ignore;
 import com.googlecode.objectify.annotation.Index;
 
 import java.util.Date;
 
 @Entity
-public class ExperienceEntry
+public class ExperienceDeleted
 {
 	@Id
 	private String id;
@@ -35,20 +34,21 @@ public class ExperienceEntry
 	@Index
 	private String authorID;
 
-	private String etag;
-
 	private String json;
 
-	@Ignore
-	private double distance;
+	private Date deleted;
 
-	private Date created;
-
-	private Date modified;
-
-	public Date getModified()
+	public ExperienceDeleted()
 	{
-		return modified;
+
+	}
+
+	public ExperienceDeleted(ExperienceEntry entry)
+	{
+		this.id = entry.getId();
+		this.authorID = entry.getAuthorID();
+		this.json = entry.getJson();
+		this.deleted = new Date();
 	}
 
 	public String getPublicID()
@@ -66,24 +66,9 @@ public class ExperienceEntry
 		this.authorID = authorID;
 	}
 
-	public double getDistance()
+	public Date getDeleted()
 	{
-		return distance;
-	}
-
-	public void setDistance(double distance)
-	{
-		this.distance = distance;
-	}
-
-	public String getEtag()
-	{
-		return etag;
-	}
-
-	public void setEtag(String etag)
-	{
-		this.etag = etag;
+		return deleted;
 	}
 
 	public String getId()
@@ -104,20 +89,5 @@ public class ExperienceEntry
 	public void setJson(String json)
 	{
 		this.json = json;
-	}
-
-	public void modified()
-	{
-		modified = new Date();
-	}
-
-	public Date getCreated()
-	{
-		return created;
-	}
-
-	public void setCreated(Date created)
-	{
-		this.created = created;
 	}
 }

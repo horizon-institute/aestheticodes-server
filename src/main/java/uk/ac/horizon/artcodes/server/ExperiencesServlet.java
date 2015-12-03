@@ -79,7 +79,9 @@ public class ExperiencesServlet extends ArtcodeServlet
 			}
 
 			Gson gson = new GsonBuilder().create();
-			resp.addHeader("Cache-Control", "max-age=300");
+			resp.setContentType("application/json");
+			resp.setCharacterEncoding("UTF-8");
+			resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
 			resp.getWriter().write(gson.toJson(list));
 		}
 		catch (HTTPException e)

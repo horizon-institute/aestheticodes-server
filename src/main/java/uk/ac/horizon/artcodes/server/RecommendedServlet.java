@@ -311,7 +311,7 @@ public class RecommendedServlet extends HttpServlet
 		String json = gson.toJson(result);
 		logger.info(json);
 
-		resp.addHeader("Cache-Control", "max-age=300");
+		resp.addHeader("Cache-Control", "max-age=3600, stale-while-revalidate=604800");
 		resp.getWriter().write(json);
 	}
 }

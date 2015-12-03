@@ -26,6 +26,7 @@ import com.googlecode.objectify.cmd.Loader;
 import com.googlecode.objectify.cmd.Saver;
 import uk.ac.horizon.aestheticodes.model.Experience;
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
+import uk.ac.horizon.aestheticodes.model.ExperienceDeleted;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 import uk.ac.horizon.aestheticodes.model.UserExperiences;
@@ -38,6 +39,7 @@ public class DataStore
 		factory().register(ExperienceEntry.class);
 		factory().register(ExperienceAvailability.class);
 		factory().register(ExperienceInteraction.class);
+		factory().register(ExperienceDeleted.class);
 		factory().register(UserExperiences.class);
 	}
 
