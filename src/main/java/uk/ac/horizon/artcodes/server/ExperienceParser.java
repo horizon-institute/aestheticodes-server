@@ -21,14 +21,8 @@ package uk.ac.horizon.artcodes.server;
 
 import com.google.appengine.repackaged.org.codehaus.jackson.annotate.JsonIgnore;
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
-import uk.ac.horizon.aestheticodes.model.Marker;
 
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-
-public class ExperienceParser
+class ExperienceParser
 {
 	public static Gson createParser()
 	{

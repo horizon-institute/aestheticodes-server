@@ -26,10 +26,9 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class HTTPException extends IOException
+class HTTPException extends IOException
 {
 	private static final Logger logger = Logger.getLogger(HTTPException.class.getName());
-
 
 	private final int status;
 
@@ -41,15 +40,18 @@ public class HTTPException extends IOException
 
 	public void writeTo(HttpServletRequest req, HttpServletResponse resp)
 	{
-		Enumeration<String> headerNames = req.getHeaderNames();
+		Enumeration headerNames = req.getHeaderNames();
 		while (headerNames.hasMoreElements())
 		{
-			String headerName = headerNames.nextElement();
-			Enumeration<String> headers = req.getHeaders(headerName);
-			while (headers.hasMoreElements())
+			Object headerName = headerNames.nextElement();
+			if(headerName instanceof String)
 			{
-				String headerValue = headers.nextElement();
-				logger.info(headerName + " = " + headerValue);
+				Enumeration headers = req.getHeaders((String)headerName);
+				while (headers.hasMoreElements())
+				{
+					Object headerValue = headers.nextElement();
+					logger.info(headerName + " = " + headerValue);
+				}
 			}
 		}
 

@@ -21,7 +21,7 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.google.appengine:gradle-appengine-plugin:1.9.28'
+		classpath 'com.google.appengine:gradle-appengine-plugin:1.9.30'
 	}
 }
 
@@ -38,14 +38,15 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-	appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.28'
-	compile 'com.google.appengine:appengine-endpoints:1.9.28'
-	compile 'com.google.appengine:appengine-endpoints-deps:1.9.28'
+	appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.30'
+	compile 'com.google.appengine:appengine-endpoints:1.9.30'
+	compile 'com.google.appengine:appengine-endpoints-deps:1.9.30'
 	compile 'com.google.appengine.tools:appengine-gcs-client:0.5'
 	compile 'com.github.spullara.mustache.java:compiler:0.8.18'
+    compile 'org.freemarker:freemarker:2.3.23'
 	compile 'javax.servlet:servlet-api:2.5'
 	compile 'com.googlecode.objectify:objectify:5.1.9'
-	compile 'com.google.code.gson:gson:2.4'
+	compile 'com.google.code.gson:gson:2.5'
 }
 
 appengine {
@@ -61,5 +62,5 @@ appengine {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.2.1'
+	gradleVersion = '2.9'
 }

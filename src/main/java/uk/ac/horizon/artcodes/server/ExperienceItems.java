@@ -19,8 +19,6 @@
 
 package uk.ac.horizon.artcodes.server;
 
-import com.google.appengine.api.search.Document;
-import com.google.appengine.api.search.Field;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;

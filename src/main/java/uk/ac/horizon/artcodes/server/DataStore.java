@@ -31,7 +31,7 @@ import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 import uk.ac.horizon.aestheticodes.model.UserExperiences;
 
-public class DataStore
+class DataStore
 {
 	static
 	{
@@ -52,7 +52,7 @@ public class DataStore
 		return ObjectifyService.ofy();
 	}
 
-	public static ObjectifyFactory factory()
+	private static ObjectifyFactory factory()
 	{
 		return ObjectifyService.factory();
 	}

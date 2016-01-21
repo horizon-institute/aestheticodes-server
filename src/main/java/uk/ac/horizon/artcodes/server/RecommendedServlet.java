@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,8 +43,8 @@ public class RecommendedServlet extends HttpServlet
 {
 	private class Nearby
 	{
-		private String uri;
-		private double distance;
+		private final String uri;
+		private final double distance;
 
 		public Nearby(String uri, double distance)
 		{
@@ -94,13 +93,6 @@ public class RecommendedServlet extends HttpServlet
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
-		final Enumeration<String> headers = req.getHeaderNames();
-		while (headers.hasMoreElements())
-		{
-			String headerName = headers.nextElement();
-			logger.info(headerName + " = " + req.getHeader(headerName));
-		}
-
 		final long now = System.currentTimeMillis();
 		int limit = RecommendedServlet.limit;
 		if (req.getParameter("limit") != null)
@@ -111,7 +103,7 @@ public class RecommendedServlet extends HttpServlet
 			}
 			catch (Exception e)
 			{
-				//
+				logger.info(e.getMessage());
 			}
 		}
 
@@ -121,7 +113,6 @@ public class RecommendedServlet extends HttpServlet
 
 		try
 		{
-			// TODO Add featured
 			logger.info("Results = " + ids.size());
 			if (ids.size() < limit)
 			{

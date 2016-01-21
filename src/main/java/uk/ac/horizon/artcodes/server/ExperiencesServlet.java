@@ -22,16 +22,18 @@ package uk.ac.horizon.artcodes.server;
 import com.google.appengine.api.users.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import uk.ac.horizon.aestheticodes.model.Experience;
-import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
-import uk.ac.horizon.aestheticodes.model.UserExperiences;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import uk.ac.horizon.aestheticodes.model.Experience;
+import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
+import uk.ac.horizon.aestheticodes.model.UserExperiences;
 
 public class ExperiencesServlet extends ArtcodeServlet
 {
@@ -50,30 +52,28 @@ public class ExperiencesServlet extends ArtcodeServlet
 					.filter("authorID ==", user.getUserId())
 					.list();
 
-			for(ExperienceEntry wrapper: wrappers)
+			for (ExperienceEntry wrapper : wrappers)
 			{
 				list.add(wrapper.getPublicID());
 			}
 
-			if(true) // Disable eventually
+			// Disable eventually
+			List<UserExperiences> userExperiences = DataStore.load().type(UserExperiences.class).filter("userID ==", user.getUserId()).list();
+			for (UserExperiences userEx : userExperiences)
 			{
-				List<UserExperiences> userExperiences = DataStore.load().type(UserExperiences.class).filter("userID ==", user.getUserId()).list();
-				for(UserExperiences userEx: userExperiences)
+				for (Experience experience : userEx)
 				{
-					for(Experience experience: userEx)
+					ExperienceEntry wrapper = DataStore.load().type(ExperienceEntry.class).id(experience.getId()).now();
+					if (wrapper == null)
 					{
-						ExperienceEntry wrapper = DataStore.load().type(ExperienceEntry.class).id(experience.getId()).now();
-						if(wrapper == null)
-						{
-							ExperienceItems items = ExperienceItems.create(experience);
-							items.save();
-							wrapper = items.getEntry();
-						}
+						ExperienceItems items = ExperienceItems.create(experience);
+						items.save();
+						wrapper = items.getEntry();
+					}
 
-						if(user.getUserId().equals(wrapper.getAuthorID()))
-						{
-							list.add(wrapper.getPublicID());
-						}
+					if (user.getUserId().equals(wrapper.getAuthorID()))
+					{
+						list.add(wrapper.getPublicID());
 					}
 				}
 			}

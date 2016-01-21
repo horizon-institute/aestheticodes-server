@@ -19,8 +19,6 @@
 
 package uk.ac.horizon.aestheticodes.model;
 
-import com.googlecode.objectify.annotation.Index;
-
 public class Availability
 {
 	private Double lat;

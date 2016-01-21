@@ -42,7 +42,7 @@ abstract class ArtcodeServlet extends HttpServlet
 		allowedClients.add(EndpointConstants.IOS_CLIENT_ID);
 	}
 
-	protected static void verifyUser(User user) throws HTTPException
+	static void verifyUser(User user) throws HTTPException
 	{
 		if(user == null)
 		{
@@ -50,7 +50,7 @@ abstract class ArtcodeServlet extends HttpServlet
 		}
 	}
 
-	protected static User getUser()
+	static User getUser()
 	{
 		final OAuthService oauth = OAuthServiceFactory.getOAuthService();
 

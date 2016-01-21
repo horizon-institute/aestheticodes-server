@@ -20,7 +20,6 @@
 package uk.ac.horizon.artcodes.server;
 
 import com.google.appengine.api.users.User;
-import com.google.gson.Gson;
 import com.googlecode.objectify.VoidWork;
 
 import uk.ac.horizon.aestheticodes.model.Experience;
@@ -41,7 +40,6 @@ import java.util.logging.Logger;
 public class ExperienceServlet extends ArtcodeServlet
 {
 	private static final Logger logger = Logger.getLogger(ExperienceServlet.class.getName());
-	private final Gson gson = ExperienceParser.createParser();
 
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -90,7 +88,7 @@ public class ExperienceServlet extends ArtcodeServlet
 	{
 		try
 		{
-			User user = getUser();
+			getUser();
 			String experienceID = getExperienceID(req);
 
 			logger.info(experienceID);
@@ -104,7 +102,7 @@ public class ExperienceServlet extends ArtcodeServlet
 				}
 				else
 				{
-					writeExperience(user, experienceWrapper, resp);
+					writeExperience(experienceWrapper, resp);
 				}
 			}
 			else
@@ -120,7 +118,7 @@ public class ExperienceServlet extends ArtcodeServlet
 					{
 						final ExperienceItems items = ExperienceItems.create(experience);
 						items.save();
-						writeExperience(user, items.getEntry(), resp);
+						writeExperience(items.getEntry(), resp);
 					}
 					catch (Exception e)
 					{
@@ -147,7 +145,7 @@ public class ExperienceServlet extends ArtcodeServlet
 			items.getEntry().setAuthorID(user.getUserId());
 			items.save();
 
-			writeExperience(user, items.getEntry(), resp);
+			writeExperience(items.getEntry(), resp);
 		}
 		catch (HTTPException e)
 		{
@@ -180,7 +178,7 @@ public class ExperienceServlet extends ArtcodeServlet
 			}
 
 			items.save();
-			writeExperience(user, items.getEntry(), resp);
+			writeExperience(items.getEntry(), resp);
 		}
 		catch (HTTPException e)
 		{
@@ -188,7 +186,7 @@ public class ExperienceServlet extends ArtcodeServlet
 		}
 	}
 
-	private void writeExperience(User user, ExperienceEntry wrapper, HttpServletResponse resp) throws IOException
+	private void writeExperience(ExperienceEntry wrapper, HttpServletResponse resp) throws IOException
 	{
 		resp.setContentType("application/x-artcode");
 		resp.setCharacterEncoding("UTF-8");
@@ -202,19 +200,6 @@ public class ExperienceServlet extends ArtcodeServlet
 			resp.setHeader("ETag", wrapper.getEtag());
 		}
 
-//		JsonElement element = gson.fromJson(wrapper.getJson(), JsonElement.class);
-//		if (element.isJsonObject())
-//		{
-//			JsonObject jsonObject = element.getAsJsonObject();
-//			if (canEdit(wrapper, user))
-//			{
-//				jsonObject.addProperty("editable", true);
-//			}
-//			else
-//			{
-//				jsonObject.remove("editable");
-//			}
-//		}
 		resp.getWriter().write(wrapper.getJson());
 	}
 

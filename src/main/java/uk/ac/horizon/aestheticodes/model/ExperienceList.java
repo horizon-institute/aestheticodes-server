@@ -24,7 +24,7 @@ import java.util.List;
 
 public class ExperienceList
 {
-	private List<Experience> experiences = new ArrayList<Experience>();
+	private List<Experience> experiences = new ArrayList<>();
 	private String version;
 	private double lat;
 	private double lon;

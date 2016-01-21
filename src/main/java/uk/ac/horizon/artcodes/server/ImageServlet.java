@@ -45,7 +45,7 @@ public class ImageServlet extends ArtcodeServlet
 	private static final int image_size = 512 * 1024;
 
 	@Override
-	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws HTTPException, IOException
+	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		final String id = getImageID(req);
 		final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
