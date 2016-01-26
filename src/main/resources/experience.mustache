@@ -66,6 +66,7 @@
 		text-align: justify;
 		margin-top: 16px;
 		margin-bottom: 16px;
+		white-space: pre-wrap;
 		}
 
 		.apps {
@@ -80,7 +81,7 @@
 		}
 
 		.app {
-		margin: 10px;
+		margin: 20px;
 		}
 
 		.button {
@@ -102,16 +103,21 @@
 			}
 		}
 	</style>
-	<script type="javascript">
-		if(/Android/i.test(navigator.userAgent))
-		{
-			document.getElementById('apapp').style.display = 'none';
-		};
-
-		if(/iPhone|iPad|iPod/i.test(navigator.userAgent))
-		{
-			document.getElementById('goapp').style.display = 'none';
-		};
+	 <script language="javascript">
+		window.onload = function(e) {
+			if(/Android/i.test(navigator.userAgent))
+			{
+				document.getElementById('apapp').style.display = 'none';
+			}
+			else if(/iPhone|iPad|iPod/i.test(navigator.userAgent))
+			{
+				document.getElementById('goapp').style.display = 'none';
+			}
+			else
+			{
+				document.getElementById('appopen').style.display = 'none';
+			}
+        };
 	</script>
 </head>
 <body>
@@ -126,20 +132,18 @@
 	<div class="desc">{{description}}</div>
 
 	<div class="apps">
-		<a class="app" id="goapp" href="https://play.google.com/store/apps/details?id=uk.ac.horizon.aestheticodes">
-			<img alt="Artcodes app on Google Play"
-			     src="https://developer.android.com/images/brand/en_app_rgb_wo_45.png" />
+		<a id="goapp" class="app" href="https://play.google.com/store/apps/details?id=uk.ac.horizon.aestheticodes&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1">
+			<img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png" style="display:block" height="40" />
 		</a>
 
-		<a class="app" id="apapp" href="https://itunes.apple.com/gb/app/aestheticodes/id703429621?mt=8&uo=4"
-		   target="itunes_store">
-			<img alt="Artcodes app on iTunes"
-			     src="https://linkmaker.itunes.apple.com/htmlResources/assets/en_us//images/web/linkmaker/badge_appstore-lrg.png">
+		<a id="apapp" class="app" href="https://geo.itunes.apple.com/gb/app/artcodes/id703429621?mt=8"
+			style="display:inline-block;overflow:hidden;background:url(http://linkmaker.itunes.apple.com/images/badges/en-us/badge_appstore-lrg.svg) no-repeat;width:135px;height:40px;">
 		</a>
+
 	</div>
 
-	<div class="apps">
-		<a class="button" href="http://aestheticodes.appspot.com/experience/file/{{id}}">
+	<div id="appopen" class="apps">
+		<a class="button" href="http://aestheticodes.appspot.com/experience/{{id}}">
 			Open in Artcodes
 		</a>
 	</div>

@@ -22,51 +22,72 @@ package uk.ac.horizon.artcodes.server;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import uk.ac.horizon.aestheticodes.model.Experience;
+import com.google.appengine.repackaged.com.google.gson.Gson;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class ExperiencePageServlet extends HttpServlet
-{
-	private static final Logger logger = Logger.getLogger(ExperiencesEndpoint.class.getName());
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import uk.ac.horizon.aestheticodes.model.Experience;
+import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
+import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
+
+public class ExperiencePageServlet extends ArtcodeServlet
+{
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
-		final String url = req.getRequestURL().toString();
-		final String experienceID = url.substring(url.lastIndexOf("/") + 1);
-
-		logger.info(url);
-		logger.info(experienceID);
-
-		final Experience experience = DataStore.load().type(Experience.class).id(experienceID).now();
-		if(experience == null)
+		final String experienceID = getExperienceID(req);
+		final Map<String, String> variables = new HashMap<>();
+		final ExperienceEntry experienceEntry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
+		if (experienceEntry != null)
 		{
-			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			final ExperienceDetails experience = new Gson().fromJson(experienceEntry.getJson(), ExperienceDetails.class);
+			variables.put("id", experienceEntry.getId());
+			variables.put("title", experience.getName());
+			variables.put("description", experience.getDescription());
+			variables.put("author", experience.getAuthor());
+			variables.put("image", experience.getImage());
+			variables.put("icon", experience.getIcon());
 		}
 		else
 		{
-			final Map<String, String> variables = new HashMap<>();
-
-			variables.put("id", experience.getId());
-			variables.put("title", experience.getName());
-			variables.put("description", experience.getDescription());
-			variables.put("author", experience.getOwner().getName());
-			variables.put("image", experience.getImage());
-			variables.put("icon", experience.getIcon());
-			variables.put("url", url);
-
-			resp.setContentType("text/html");
-
-			final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
-			final Mustache mustache = mustacheFactory.compile("experience.mustache");
-			mustache.execute(resp.getWriter(), variables).flush();
+			final Experience experience = DataStore.load().type(Experience.class).id(experienceID).now();
+			if (experience == null)
+			{
+				throw new HTTPException(HttpServletResponse.SC_NOT_FOUND, "Not found");
+			}
+			else
+			{
+				variables.put("id", experience.getId());
+				variables.put("title", experience.getName());
+				variables.put("description", experience.getDescription());
+				variables.put("author", experience.getOwner().getName());
+				variables.put("image", experience.getImage());
+				variables.put("icon", experience.getIcon());
+			}
 		}
+
+		resp.setContentType("text/html");
+
+		final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+		final Mustache mustache = mustacheFactory.compile("experience.mustache");
+		mustache.execute(resp.getWriter(), variables).flush();
+	}
+
+	private String getExperienceID(HttpServletRequest req)
+	{
+		String url = req.getRequestURL().toString();
+		String experienceID = url.substring(url.lastIndexOf("/") + 1);
+		if (experienceID.endsWith(".artcode"))
+		{
+			experienceID = experienceID.substring(0, experienceID.indexOf(".artcode"));
+		}
+
+		return experienceID;
 	}
 }
