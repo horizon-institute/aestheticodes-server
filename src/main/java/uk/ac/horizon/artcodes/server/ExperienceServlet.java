@@ -22,7 +22,6 @@ package uk.ac.horizon.artcodes.server;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.VoidWork;
 
-import uk.ac.horizon.aestheticodes.model.Experience;
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceDeleted;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
@@ -34,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ExperienceServlet extends ArtcodeServlet
@@ -93,38 +91,21 @@ public class ExperienceServlet extends ArtcodeServlet
 
 			logger.info(experienceID);
 
-			final ExperienceEntry experienceWrapper = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
-			if (experienceWrapper != null)
+			final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
+			if (entry != null)
 			{
-				if (req.getHeader("If-None-Match") != null && req.getHeader("If-None-Match").equals(experienceWrapper.getEtag()))
+				if (req.getHeader("If-None-Match") != null && req.getHeader("If-None-Match").equals(entry.getEtag()))
 				{
 					throw new HTTPException(HttpServletResponse.SC_NOT_MODIFIED, "No Change");
 				}
 				else
 				{
-					writeExperience(experienceWrapper, resp);
+					writeExperience(entry, resp);
 				}
 			}
 			else
 			{
-				final Experience experience = DataStore.load().type(Experience.class).id(experienceID).now();
-				if (experience == null)
-				{
-					throw new HTTPException(HttpServletResponse.SC_NOT_FOUND, "Not found");
-				}
-				else
-				{
-					try
-					{
-						final ExperienceItems items = ExperienceItems.create(experience);
-						items.save();
-						writeExperience(items.getEntry(), resp);
-					}
-					catch (Exception e)
-					{
-						logger.log(Level.SEVERE, e.getMessage(), e);
-					}
-				}
+				throw new HTTPException(HttpServletResponse.SC_NOT_FOUND, "Not found");
 			}
 		}
 		catch (HTTPException e)

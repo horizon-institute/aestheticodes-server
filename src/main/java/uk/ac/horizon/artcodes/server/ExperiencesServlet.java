@@ -22,6 +22,7 @@ package uk.ac.horizon.artcodes.server;
 import com.google.appengine.api.users.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.googlecode.objectify.VoidWork;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -31,9 +32,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import uk.ac.horizon.aestheticodes.model.Experience;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
-import uk.ac.horizon.aestheticodes.model.UserExperiences;
 
 public class ExperiencesServlet extends ArtcodeServlet
 {
@@ -47,35 +46,32 @@ public class ExperiencesServlet extends ArtcodeServlet
 			User user = getUser();
 			verifyUser(user);
 
-			Collection<String> list = new HashSet<>();
-			List<ExperienceEntry> wrappers = DataStore.load().type(ExperienceEntry.class)
+			final Collection<String> list = new HashSet<>();
+			final List<ExperienceEntry> entries = DataStore.load().type(ExperienceEntry.class)
 					.filter("authorID ==", user.getUserId())
 					.list();
 
-			for (ExperienceEntry wrapper : wrappers)
+			for (final ExperienceEntry entry : entries)
 			{
-				list.add(wrapper.getPublicID());
+				list.add(entry.getPublicID());
 			}
 
-			// Disable eventually
-			List<UserExperiences> userExperiences = DataStore.load().type(UserExperiences.class).filter("userID ==", user.getUserId()).list();
-			for (UserExperiences userEx : userExperiences)
-			{
-				for (Experience experience : userEx)
-				{
-					ExperienceEntry wrapper = DataStore.load().type(ExperienceEntry.class).id(experience.getId()).now();
-					if (wrapper == null)
-					{
-						ExperienceItems items = ExperienceItems.create(experience);
-						items.save();
-						wrapper = items.getEntry();
-					}
+			final List<ExperienceEntry> oldEntries = DataStore.load().type(ExperienceEntry.class)
+					.filter("authorID ==", user.getEmail())
+					.list();
 
-					if (user.getUserId().equals(wrapper.getAuthorID()))
+			for (final ExperienceEntry entry : oldEntries)
+			{
+				entry.setAuthorID(user.getUserId());
+				DataStore.get().transact(new VoidWork()
+				{
+					@Override
+					public void vrun()
 					{
-						list.add(wrapper.getPublicID());
+						DataStore.save().entity(entry);
 					}
-				}
+				});
+				list.add(entry.getPublicID());
 			}
 
 			Gson gson = new GsonBuilder().create();
