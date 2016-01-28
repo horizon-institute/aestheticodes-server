@@ -25,7 +25,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class ExperienceDetails
 {
-	private List<Availability> availabilities = new ArrayList<>();
+	private List<ExperienceAvailability> availabilities = new ArrayList<>();
 
 	private String id;
 	private String name;
@@ -38,7 +38,7 @@ public class ExperienceDetails
 	{
 	}
 
-	public List<Availability> getAvailabilities()
+	public List<ExperienceAvailability> getAvailabilities()
 	{
 		return availabilities;
 	}
