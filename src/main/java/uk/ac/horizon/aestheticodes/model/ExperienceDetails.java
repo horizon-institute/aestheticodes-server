@@ -19,48 +19,73 @@
 
 package uk.ac.horizon.aestheticodes.model;
 
-public class Availability
+import java.util.ArrayList;
+import java.util.List;
+
+@SuppressWarnings("unused")
+public class ExperienceDetails
 {
-	private Double lat;
-	private Double lon;
+	private List<ExperienceAvailability> availabilities = new ArrayList<>();
+
+	private String id;
 	private String name;
-	private Long start;
-	private Long end;
-	private String address;
+	private String icon;
+	private String image;
+	private String description;
+	private String author;
 
-	public Availability()
+	public ExperienceDetails()
 	{
-
 	}
 
-	public String getAddress()
+	public List<ExperienceAvailability> getAvailabilities()
 	{
-		return address;
+		return availabilities;
 	}
 
-	public Long getEnd()
+	public String getDescription()
 	{
-		return end;
+		return description;
 	}
 
-	public Double getLat()
+	public void setDescription(String description)
 	{
-		return lat;
+		this.description = description;
 	}
 
-	public Double getLon()
+	public String getIcon()
 	{
-		return lon;
+		return icon;
 	}
 
-	public void setAddress(String address)
+	public void setIcon(String icon)
 	{
-		this.address = address;
+		this.icon = icon;
 	}
 
-	public void setEnd(Long end)
+	public String getId()
 	{
-		this.end = end;
+		return id;
+	}
+
+	public String getAuthor()
+	{
+		return author;
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+
+	public String getImage()
+	{
+		return image;
+	}
+
+	public void setImage(String image)
+	{
+		this.image = image;
 	}
 
 	public String getName()
@@ -71,25 +96,5 @@ public class Availability
 	public void setName(String name)
 	{
 		this.name = name;
-	}
-
-	public Long getStart()
-	{
-		return start;
-	}
-
-	public void setStart(Long start)
-	{
-		this.start = start;
-	}
-
-	public void setLat(double lat)
-	{
-		this.lat = lat;
-	}
-
-	public void setLon(double lon)
-	{
-		this.lon = lon;
 	}
 }

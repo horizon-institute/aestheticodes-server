@@ -25,11 +25,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.googlecode.objectify.VoidWork;
-import uk.ac.horizon.aestheticodes.model.Experience;
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
-import uk.ac.horizon.aestheticodes.model.UserExperiences;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.Reader;
@@ -40,24 +38,6 @@ import java.util.List;
 
 public class ExperienceItems
 {
-	public static ExperienceItems create(Experience experience) throws HTTPException
-	{
-		Gson gson = ExperienceParser.createParser();
-		final JsonElement element = gson.toJsonTree(experience);
-
-		ExperienceItems items = create(gson, element, experience.getId());
-		if(experience.getOwner() != null)
-		{
-			UserExperiences userExperiences = DataStore.load().key(experience.getOwner()).now();
-			if (userExperiences != null)
-			{
-				items.entry.setAuthorID(userExperiences.getUserID());
-			}
-		}
-
-		return items;
-	}
-
 	public ExperienceEntry getEntry()
 	{
 		return entry;
