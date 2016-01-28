@@ -19,8 +19,6 @@
 
 package uk.ac.horizon.aestheticodes.model;
 
-import com.google.api.server.spi.config.AnnotationBoolean;
-import com.google.api.server.spi.config.ApiResourceProperty;
 import com.google.appengine.repackaged.org.codehaus.jackson.annotate.JsonIgnore;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Entity;
@@ -223,7 +221,6 @@ public class Experience
 		this.name = name;
 	}
 
-	@ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
 	public String getNextUnusedMarker()
 	{
 		if (markers.isEmpty())

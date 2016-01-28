@@ -29,7 +29,6 @@ import uk.ac.horizon.aestheticodes.model.Experience;
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
-import uk.ac.horizon.aestheticodes.model.UserExperiences;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.Reader;
@@ -48,11 +47,7 @@ public class ExperienceItems
 		ExperienceItems items = create(gson, element, experience.getId());
 		if(experience.getOwner() != null)
 		{
-			UserExperiences userExperiences = DataStore.load().key(experience.getOwner()).now();
-			if (userExperiences != null)
-			{
-				items.entry.setAuthorID(userExperiences.getUserID());
-			}
+			items.entry.setAuthorID(experience.getOwner().getName());
 		}
 
 		return items;

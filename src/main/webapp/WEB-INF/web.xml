@@ -29,15 +29,6 @@
 	</servlet-mapping>
 
 	<servlet>
-		<servlet-name>experienceFile</servlet-name>
-		<servlet-class>uk.ac.horizon.artcodes.server.ExperienceFileServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>experienceFile</servlet-name>
-		<url-pattern>/experience/file/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
 		<servlet-name>experience</servlet-name>
 		<servlet-class>uk.ac.horizon.artcodes.server.ExperienceServlet</servlet-class>
 	</servlet>
@@ -80,19 +71,6 @@
 	<servlet-mapping>
 		<servlet-name>image</servlet-name>
 		<url-pattern>/image/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
-		<servlet-name>SystemServiceServlet</servlet-name>
-		<servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
-		<init-param>
-			<param-name>services</param-name>
-			<param-value>uk.ac.horizon.artcodes.server.ExperiencesEndpoint</param-value>
-		</init-param>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>SystemServiceServlet</servlet-name>
-		<url-pattern>/_ah/spi/*</url-pattern>
 	</servlet-mapping>
 
 	<filter>

@@ -19,21 +19,19 @@
 
 package uk.ac.horizon.artcodes.server;
 
-import com.google.appengine.api.users.User;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.googlecode.objectify.VoidWork;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import uk.ac.horizon.aestheticodes.model.Experience;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
+import uk.ac.horizon.aestheticodes.model.UserExperiences;
 
-public class ExperiencesServlet extends ArtcodeServlet
+public class ConvertServlet extends ArtcodeServlet
 {
 	//private static final Logger logger = Logger.getLogger(ExperiencesServlet.class.getName());
 
@@ -42,34 +40,35 @@ public class ExperiencesServlet extends ArtcodeServlet
 	{
 		try
 		{
-			User user = getUser();
-			verifyUser(user);
-
-			final Collection<String> list = new HashSet<>();
-			final List<ExperienceEntry> entries = DataStore.load().type(ExperienceEntry.class)
-					.filter("authorID ==", user.getUserId())
-					.list();
-
-			for (final ExperienceEntry entry : entries)
+			List<UserExperiences> userExperiences = DataStore.load().type(UserExperiences.class).list();
+			for (UserExperiences userEx : userExperiences)
 			{
-				list.add(entry.getPublicID());
+				for (Experience experience : userEx)
+				{
+					final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experience.getId()).now();
+					if (entry == null)
+					{
+						final ExperienceItems items = ExperienceItems.create(experience);
+						items.save();
+					}
+					else if(entry.getAuthorID() == null && experience.getOwner() != null)
+					{
+						entry.setAuthorID(experience.getOwner().getName());
+						DataStore.get().transact(new VoidWork()
+						{
+							@Override
+							public void vrun()
+							{
+								DataStore.save().entity(entry);
+							}
+						});
+					}
+				}
 			}
 
-			final List<ExperienceEntry> oldEntries = DataStore.load().type(ExperienceEntry.class)
-					.filter("authorID ==", user.getEmail())
-					.list();
-
-			for (ExperienceEntry entry : oldEntries)
-			{
-				// TODO Convert to new author id
-				list.add(entry.getPublicID());
-			}
-
-			Gson gson = new GsonBuilder().create();
 			resp.setContentType("application/json");
 			resp.setCharacterEncoding("UTF-8");
-			resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
-			resp.getWriter().write(gson.toJson(list));
+			resp.getWriter().write("finished");
 		}
 		catch (HTTPException e)
 		{

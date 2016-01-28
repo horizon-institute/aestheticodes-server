@@ -27,12 +27,10 @@ import com.google.appengine.repackaged.com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import uk.ac.horizon.aestheticodes.model.Experience;
 import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 
@@ -53,23 +51,6 @@ public class ExperiencePageServlet extends ArtcodeServlet
 			variables.put("author", experience.getAuthor());
 			variables.put("image", experience.getImage());
 			variables.put("icon", experience.getIcon());
-		}
-		else
-		{
-			final Experience experience = DataStore.load().type(Experience.class).id(experienceID).now();
-			if (experience == null)
-			{
-				throw new HTTPException(HttpServletResponse.SC_NOT_FOUND, "Not found");
-			}
-			else
-			{
-				variables.put("id", experience.getId());
-				variables.put("title", experience.getName());
-				variables.put("description", experience.getDescription());
-				variables.put("author", experience.getOwner().getName());
-				variables.put("image", experience.getImage());
-				variables.put("icon", experience.getIcon());
-			}
 		}
 
 		resp.setContentType("text/html");
