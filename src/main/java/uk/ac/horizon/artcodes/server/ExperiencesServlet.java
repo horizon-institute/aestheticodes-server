@@ -22,6 +22,7 @@ package uk.ac.horizon.artcodes.server;
 import com.google.appengine.api.users.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.googlecode.objectify.VoidWork;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -59,9 +60,17 @@ public class ExperiencesServlet extends ArtcodeServlet
 					.filter("authorID ==", user.getEmail())
 					.list();
 
-			for (ExperienceEntry entry : oldEntries)
+			for (final ExperienceEntry entry : oldEntries)
 			{
-				// TODO Convert to new author id
+				entry.setAuthorID(user.getUserId());
+				DataStore.get().transact(new VoidWork()
+				{
+					@Override
+					public void vrun()
+					{
+						DataStore.save().entity(entry);
+					}
+				});
 				list.add(entry.getPublicID());
 			}
 
