@@ -19,15 +19,20 @@
 
 package uk.ac.horizon.artcodes.server;
 
+import com.google.appengine.api.search.Document;
+import com.google.appengine.api.search.Field;
+import com.google.appengine.api.search.Index;
+import com.google.appengine.api.search.PutException;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.googlecode.objectify.VoidWork;
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
+import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
-import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.Reader;
@@ -35,20 +40,21 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ExperienceItems
 {
-	public ExperienceEntry getEntry()
-	{
-		return entry;
-	}
+	private static final Logger logger = Logger.getLogger(ExperienceItems.class.getName());
+	private static final Gson gson = new GsonBuilder().create();
+	private ExperienceEntry entry;
+	private List<ExperienceAvailability> availabilities = new ArrayList<>();
 
 	public static ExperienceItems create(String experienceID, Reader experienceReader) throws HTTPException
 	{
-		Gson gson = ExperienceParser.createParser();
 		final JsonElement element = gson.fromJson(experienceReader, JsonElement.class);
 
-		return create(gson, element, experienceID);
+		return create(element, experienceID);
 	}
 
 	private static JsonObject verifyExperience(JsonElement element) throws HTTPException
@@ -64,7 +70,7 @@ public class ExperienceItems
 		return jsonObject;
 	}
 
-	private static ExperienceItems create(Gson gson, JsonElement element, String experienceID) throws HTTPException
+	private static ExperienceItems create(JsonElement element, String experienceID) throws HTTPException
 	{
 		final ExperienceEntry wrapper = gson.fromJson(element, ExperienceEntry.class);
 		wrapper.setCreated(new Date());
@@ -75,12 +81,26 @@ public class ExperienceItems
 		if (experienceObject.has("id"))
 		{
 			String existing = experienceObject.get("id").getAsString();
-			if(!fullID.equals(existing))
+			if ((existing.startsWith("http://") || existing.startsWith("https://")) && !fullID.equals(existing))
 			{
 				experienceObject.add("originalID", experienceObject.get("id"));
 			}
 		}
 		experienceObject.addProperty("id", fullID);
+
+		final JsonArray actionArray = experienceObject.getAsJsonArray("actions");
+		for(JsonElement actionElement: actionArray)
+		{
+			JsonObject action = actionElement.getAsJsonObject();
+			if(action != null)
+			{
+				String owner = action.get("owner").getAsString();
+				if(owner != null && owner.equals("this"))
+				{
+					action.addProperty("owner", fullID);
+				}
+			}
+		}
 
 		final String experienceJson = gson.toJson(experienceObject);
 		wrapper.setJson(experienceJson);
@@ -103,6 +123,11 @@ public class ExperienceItems
 		return items;
 	}
 
+	public ExperienceEntry getEntry()
+	{
+		return entry;
+	}
+
 	public void save()
 	{
 		final List<ExperienceAvailability> existingAvails = DataStore.load()
@@ -111,8 +136,6 @@ public class ExperienceItems
 				.list();
 
 		entry.modified();
-
-		final ExperienceInteraction interaction = DataStore.load().type(ExperienceInteraction.class).id(entry.getPublicID()).now();
 
 		DataStore.get().transact(new VoidWork()
 		{
@@ -124,17 +147,39 @@ public class ExperienceItems
 				if (!availabilities.isEmpty())
 				{
 					DataStore.save().entities(availabilities);
-					if (interaction == null)
-					{
-						ExperienceInteraction experienceInteraction = new ExperienceInteraction();
-						experienceInteraction.setUri(entry.getPublicID());
-						DataStore.save().entity(experienceInteraction);
-					}
 				}
 			}
 		});
-	}
 
-	private ExperienceEntry entry;
-	private List<ExperienceAvailability> availabilities = new ArrayList<>();
+		ExperienceDetails details = gson.fromJson(entry.getJson(), ExperienceDetails.class);
+
+		final Index index = SearchServlet.getIndex();
+		if (!availabilities.isEmpty())
+		{
+			final Document doc = Document.newBuilder()
+					.setId(entry.getPublicID())
+					.addField(Field.newBuilder().setName("title").setText(details.getName()))
+					.addField(Field.newBuilder().setName("content").setText(details.getDescription()))
+					.addField(Field.newBuilder().setName("author").setText(details.getAuthor()))
+					.addField(Field.newBuilder().setName("modified").setDate(entry.getModified()))
+					.build();
+
+			try
+			{
+				index.put(doc);
+			}
+			catch (PutException e)
+			{
+				logger.log(Level.WARNING, e.getMessage(), e);
+				//if (StatusCode.TRANSIENT_ERROR.equals(e.getOperationResult().getCode()))
+				//{
+					// retry putting the document
+				//}
+			}
+		}
+		else
+		{
+			index.delete(entry.getPublicID());
+		}
+	}
 }

@@ -23,6 +23,8 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 
+import java.util.logging.Logger;
+
 @Entity
 public class ExperienceAvailability
 {
@@ -96,7 +98,7 @@ public class ExperienceAvailability
 
 	public boolean isActive(long now)
 	{
-		return start < now && end > now;
+		return start <= now && end >= now;
 	}
 
 	// in miles

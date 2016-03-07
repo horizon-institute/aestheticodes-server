@@ -38,23 +38,8 @@ class HTTPException extends IOException
 		this.status = status;
 	}
 
-	public void writeTo(HttpServletRequest req, HttpServletResponse resp)
+	public void writeTo(HttpServletResponse resp)
 	{
-		Enumeration headerNames = req.getHeaderNames();
-		while (headerNames.hasMoreElements())
-		{
-			Object headerName = headerNames.nextElement();
-			if(headerName instanceof String)
-			{
-				Enumeration headers = req.getHeaders((String)headerName);
-				while (headers.hasMoreElements())
-				{
-					Object headerValue = headers.nextElement();
-					logger.info(headerName + " = " + headerValue);
-				}
-			}
-		}
-
 		resp.setStatus(status);
 		try
 		{

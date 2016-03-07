@@ -88,19 +88,19 @@ public class ImageServlet extends ArtcodeServlet
 	}
 
 	@Override
-	public void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		try
 		{
-			if (req.getContentLength() > image_size)
+			if (request.getContentLength() > image_size)
 			{
 				throw new HTTPException(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Image too large");
 			}
 
-			getUser();
-			final String id = getImageID(req);
+			getUser(request);
+			final String id = getImageID(request);
 			final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-			final GcsFilename filename = new GcsFilename(req.getServerName(), id);
+			final GcsFilename filename = new GcsFilename(request.getServerName(), id);
 
 			final GcsFileMetadata metadata = gcsService.getMetadata(filename);
 			if (metadata != null)
@@ -108,7 +108,7 @@ public class ImageServlet extends ArtcodeServlet
 				throw new HTTPException(HttpServletResponse.SC_FORBIDDEN, "Cannot modify");
 			}
 
-			final BufferedInputStream inputStream = new BufferedInputStream(req.getInputStream());
+			final BufferedInputStream inputStream = new BufferedInputStream(request.getInputStream());
 			final String mimetype = URLConnection.guessContentTypeFromStream(inputStream);
 			if (mimetype == null)
 			{
@@ -135,7 +135,7 @@ public class ImageServlet extends ArtcodeServlet
 		}
 		catch (HTTPException e)
 		{
-			e.writeTo(req, resp);
+			e.writeTo(response);
 		}
 	}
 }

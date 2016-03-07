@@ -32,13 +32,13 @@ public class InteractionServlet extends ArtcodeServlet
 	private static final Logger logger = Logger.getLogger(InteractionServlet.class.getName());
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		try
 		{
-			User user = getUser();
+			User user = getUser(request);
 			verifyUser(user);
-			String experienceID = req.getParameter("experience");
+			String experienceID = request.getParameter("experience");
 
 			logger.info(experienceID);
 
@@ -55,7 +55,7 @@ public class InteractionServlet extends ArtcodeServlet
 		}
 		catch (HTTPException e)
 		{
-			e.writeTo(req, resp);
+			e.writeTo(response);
 		}
 	}
 }

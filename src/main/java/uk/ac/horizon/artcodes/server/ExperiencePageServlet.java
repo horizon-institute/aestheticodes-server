@@ -36,39 +36,37 @@ import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 
 public class ExperiencePageServlet extends ArtcodeServlet
 {
+	private final Mustache mustache;
+
+	public ExperiencePageServlet()
+	{
+		final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+		mustache = mustacheFactory.compile("experience.mustache");
+	}
+
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		final String experienceID = getExperienceID(req);
 		final Map<String, String> variables = new HashMap<>();
-		final ExperienceEntry experienceEntry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
-		if (experienceEntry != null)
+		final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
+		if (entry != null)
 		{
-			final ExperienceDetails experience = new Gson().fromJson(experienceEntry.getJson(), ExperienceDetails.class);
-			variables.put("id", experienceEntry.getId());
+			final ExperienceDetails experience = new Gson().fromJson(entry.getJson(), ExperienceDetails.class);
+			variables.put("id", entry.getId());
 			variables.put("title", experience.getName());
 			variables.put("description", experience.getDescription());
 			variables.put("author", experience.getAuthor());
 			variables.put("image", experience.getImage());
 			variables.put("icon", experience.getIcon());
+
+			resp.setContentType("text/html");
+			writeExperienceCacheHeaders(resp, entry);
+			mustache.execute(resp.getWriter(), variables).flush();
 		}
-
-		resp.setContentType("text/html");
-
-		final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
-		final Mustache mustache = mustacheFactory.compile("experience.mustache");
-		mustache.execute(resp.getWriter(), variables).flush();
-	}
-
-	private String getExperienceID(HttpServletRequest req)
-	{
-		String url = req.getRequestURL().toString();
-		String experienceID = url.substring(url.lastIndexOf("/") + 1);
-		if (experienceID.endsWith(".artcode"))
+		else
 		{
-			experienceID = experienceID.substring(0, experienceID.indexOf(".artcode"));
+			// TODO Write not found exception
 		}
-
-		return experienceID;
 	}
 }

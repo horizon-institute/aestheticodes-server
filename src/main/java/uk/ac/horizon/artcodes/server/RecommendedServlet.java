@@ -19,14 +19,6 @@
 
 package uk.ac.horizon.artcodes.server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
-import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
-
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +31,13 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class RecommendedServlet extends HttpServlet
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
+import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
+
+public class RecommendedServlet extends ArtcodeServlet
 {
 	private class Nearby
 	{
@@ -67,7 +65,7 @@ public class RecommendedServlet extends HttpServlet
 
 	private static final int limit = 4;
 	private static final long recent = 86400000;
-	private static final Logger logger = Logger.getLogger(RecommendedServlet.class.getName());
+	private static final Logger logger = Logger.getLogger(RecommendedServlet.class.getSimpleName());
 
 	private LatLng getLocation(HttpServletRequest req)
 	{
@@ -109,7 +107,6 @@ public class RecommendedServlet extends HttpServlet
 
 		final Map<String, List<String>> result = new HashMap<>();
 		final Set<String> ids = new HashSet<>();
-		final Gson gson = new GsonBuilder().create();
 
 		try
 		{
@@ -130,7 +127,7 @@ public class RecommendedServlet extends HttpServlet
 								.filter("uri", interaction.getUri())
 								.list();
 
-						if(availabilities.isEmpty())
+						if (availabilities.isEmpty())
 						{
 							ids.add(interaction.getUri());
 							feturedIDs.add(interaction.getUri());
@@ -156,7 +153,6 @@ public class RecommendedServlet extends HttpServlet
 				}
 			}
 
-
 			final List<Nearby> nearby = new ArrayList<>();
 			LatLng location = getLocation(req);
 			if (location != null)
@@ -175,11 +171,10 @@ public class RecommendedServlet extends HttpServlet
 						try
 						{
 							final double distance = availability.getMilesFrom(location.latitude, location.longitude);
-							logger.info("Distance of " + distance);
+							logger.info(availability.getUri() + " has distance = " + distance);
 							if (distance < 5)
 							{
 								nearby.add(new Nearby(availability.getUri(), distance));
-								break;
 							}
 						}
 						catch (Exception e)
@@ -194,7 +189,7 @@ public class RecommendedServlet extends HttpServlet
 					@Override
 					public int compare(Nearby o1, Nearby o2)
 					{
-						return (int) ((o2.distance - o1.distance) * 10000);
+						return (int) ((o1.distance - o2.distance) * 10000);
 					}
 				});
 
@@ -261,19 +256,20 @@ public class RecommendedServlet extends HttpServlet
 		if (ids.size() < limit)
 		{
 			List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
+					.filter("interactions !=", 0)
 					.order("-interactions")
 					.list();
 
 			List<String> popularIDs = new ArrayList<>();
 			for (ExperienceInteraction interaction : interactions)
 			{
-				if (!ids.contains(interaction.getUri()))
+				if (interaction.getInteractions() > 0 && !ids.contains(interaction.getUri()))
 				{
 					List<ExperienceAvailability> availabilities = DataStore.load()
 							.type(ExperienceAvailability.class)
 							.filter("uri", interaction.getUri())
 							.list();
-					if(availabilities.isEmpty())
+					if (availabilities.isEmpty())
 					{
 						ids.add(interaction.getUri());
 						popularIDs.add(interaction.getUri());
@@ -299,10 +295,7 @@ public class RecommendedServlet extends HttpServlet
 			}
 		}
 
-		String json = gson.toJson(result);
-		logger.info(json);
-
-		resp.addHeader("Cache-Control", "max-age=3600, stale-while-revalidate=604800");
-		resp.getWriter().write(json);
+		resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
+		writeJSON(resp, result);
 	}
 }

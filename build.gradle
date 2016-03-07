@@ -38,7 +38,9 @@ sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
-	appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.30'
+	appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.32'
+	compile 'com.google.api-client:google-api-client:1.21.0'
+	compile 'com.google.http-client:google-http-client-gson:1.21.0'
 	compile 'com.google.appengine.tools:appengine-gcs-client:0.5'
 	compile 'com.github.spullara.mustache.java:compiler:0.8.18'
 	compile 'javax.servlet:servlet-api:2.5'
@@ -55,5 +57,5 @@ appengine {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.10'
+	gradleVersion = '2.11'
 }

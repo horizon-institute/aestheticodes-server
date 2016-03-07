@@ -37,18 +37,18 @@ import java.util.logging.Logger;
 
 public class ExperienceServlet extends ArtcodeServlet
 {
-	private static final Logger logger = Logger.getLogger(ExperienceServlet.class.getName());
+	private static final Logger logger = Logger.getLogger(ExperienceServlet.class.getSimpleName());
 
 	@Override
-	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
 		try
 		{
-			User user = getUser();
+			User user = getUser(request);
 			verifyUser(user);
-			final String experienceID = getExperienceID(req);
+			final String experienceID = getExperienceID(request);
 			ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
-			verifyCanEdit(entry, user);
+			verifyUserCanEdit(entry, user);
 
 
 			final List<ExperienceAvailability> existingAvails = DataStore.load()
@@ -77,30 +77,30 @@ public class ExperienceServlet extends ArtcodeServlet
 		}
 		catch (HTTPException e)
 		{
-			e.writeTo(req, resp);
+			e.writeTo(response);
 		}
 	}
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		try
 		{
-			getUser();
-			String experienceID = getExperienceID(req);
+			getUser(request);
+			String experienceID = getExperienceID(request);
 
 			logger.info(experienceID);
 
 			final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
 			if (entry != null)
 			{
-				if (req.getHeader("If-None-Match") != null && req.getHeader("If-None-Match").equals(entry.getEtag()))
+				if (request.getHeader("If-None-Match") != null && request.getHeader("If-None-Match").equals(entry.getEtag()))
 				{
 					throw new HTTPException(HttpServletResponse.SC_NOT_MODIFIED, "No Change");
 				}
 				else
 				{
-					writeExperience(entry, resp);
+					writeExperience(response, entry);
 				}
 			}
 			else
@@ -110,43 +110,43 @@ public class ExperienceServlet extends ArtcodeServlet
 		}
 		catch (HTTPException e)
 		{
-			e.writeTo(req, resp);
+			e.writeTo(response);
 		}
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
 		try
 		{
-			final User user = getUser();
+			final User user = getUser(request);
 			verifyUser(user);
 			final String experienceID = UUID.randomUUID().toString();
-			final ExperienceItems items = ExperienceItems.create(experienceID, req.getReader());
+			final ExperienceItems items = ExperienceItems.create(experienceID, request.getReader());
 			items.getEntry().setAuthorID(user.getUserId());
 			items.save();
 
-			writeExperience(items.getEntry(), resp);
+			writeExperience(response, items.getEntry());
 		}
 		catch (HTTPException e)
 		{
-			e.writeTo(req, resp);
+			e.writeTo(response);
 		}
 	}
 
 	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
 		try
 		{
-			final User user = getUser();
+			final User user = getUser(request);
 			verifyUser(user);
-			final String experienceID = getExperienceID(req);
+			final String experienceID = getExperienceID(request);
 
 			ExperienceEntry existing = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
-			verifyCanEdit(existing, user);
+			verifyUserCanEdit(existing, user);
 
-			final ExperienceItems items = ExperienceItems.create(experienceID, req.getReader());
+			final ExperienceItems items = ExperienceItems.create(experienceID, request.getReader());
 			items.getEntry().setId(experienceID);
 			items.getEntry().setCreated(existing.getCreated());
 			if (existing.getAuthorID() != null)
@@ -159,29 +159,12 @@ public class ExperienceServlet extends ArtcodeServlet
 			}
 
 			items.save();
-			writeExperience(items.getEntry(), resp);
+			writeExperience(response, items.getEntry());
 		}
 		catch (HTTPException e)
 		{
-			e.writeTo(req, resp);
+			e.writeTo(response);
 		}
-	}
-
-	private void writeExperience(ExperienceEntry wrapper, HttpServletResponse resp) throws IOException
-	{
-		resp.setContentType("application/x-artcode");
-		resp.setCharacterEncoding("UTF-8");
-		if(wrapper.getModified() != null)
-		{
-			resp.setDateHeader("Last-Modified", wrapper.getModified().getTime());
-		}
-		if (wrapper.getEtag() != null)
-		{
-			resp.setHeader("Cache-Control", "max-age=300, stale-while-revalidate=604800");
-			resp.setHeader("ETag", wrapper.getEtag());
-		}
-
-		resp.getWriter().write(wrapper.getJson());
 	}
 
 	private boolean canEdit(ExperienceEntry wrapper, User user)
@@ -190,7 +173,7 @@ public class ExperienceServlet extends ArtcodeServlet
 
 	}
 
-	private void verifyCanEdit(ExperienceEntry wrapper, User user) throws HTTPException
+	private void verifyUserCanEdit(ExperienceEntry wrapper, User user) throws HTTPException
 	{
 		if (wrapper == null)
 		{
@@ -201,17 +184,5 @@ public class ExperienceServlet extends ArtcodeServlet
 		{
 			throw new HTTPException(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
 		}
-	}
-
-	private String getExperienceID(HttpServletRequest req)
-	{
-		String url = req.getRequestURL().toString();
-		String experienceID = url.substring(url.lastIndexOf("/") + 1);
-		if (experienceID.endsWith(".artcode"))
-		{
-			experienceID = experienceID.substring(0, experienceID.indexOf(".artcode"));
-		}
-
-		return experienceID;
 	}
 }

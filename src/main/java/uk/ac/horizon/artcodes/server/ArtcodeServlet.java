@@ -19,59 +19,168 @@
 
 package uk.ac.horizon.artcodes.server;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.oauth.OAuthService;
 import com.google.appengine.api.oauth.OAuthServiceFactory;
 import com.google.appengine.api.users.User;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 
 abstract class ArtcodeServlet extends HttpServlet
 {
-	private static final Logger logger = Logger.getLogger(ArtcodeServlet.class.getName());
+	private static final Gson gson = new GsonBuilder().create();
+	private static final Logger logger = Logger.getLogger(ArtcodeServlet.class.getSimpleName());
 	private static final Set<String> allowedClients = new HashSet<>();
+	private static final OAuthService oauth = OAuthServiceFactory.getOAuthService();
+	private static final GoogleIdTokenVerifier verifier;
 
 	static
 	{
 		allowedClients.add(EndpointConstants.WEB_CLIENT_ID);
 		allowedClients.add(EndpointConstants.ANDROID_CLIENT_ID);
 		allowedClients.add(EndpointConstants.IOS_CLIENT_ID);
+
+		// If you retrieved the token on Android using the Play Services 8.3 API or newer, set
+		// the issuer to "https://accounts.google.com". Otherwise, set the issuer to
+		// "accounts.google.com". If you need to verify tokens from multiple sources, build
+		// a GoogleIdTokenVerifier for each issuer and try them both.
+		verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+				//.setAudience(Collections.singletonList(EndpointConstants.ANDROID_AUDIENCE))
+				.setAudience(allowedClients)
+				// If you retrieved the token on Android using the Play Services 8.3 API or newer, set
+				// the issuer to "https://accounts.google.com". Otherwise, set the issuer to
+				// "accounts.google.com". If you need to verify tokens from multiple sources, build
+				// a GoogleIdTokenVerifier for each issuer and try them both.
+				.setIssuers(Arrays.asList("https://accounts.google.com", "accounts.google.com"))
+				.build();
 	}
 
 	static void verifyUser(User user) throws HTTPException
 	{
-		if(user == null)
+		if (user == null)
 		{
 			throw new HTTPException(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
 		}
 	}
 
-	static User getUser()
+	static void writeExperience(HttpServletResponse resp, ExperienceEntry entry) throws IOException
 	{
-		final OAuthService oauth = OAuthServiceFactory.getOAuthService();
+		resp.setContentType("application/x-artcode");
+		resp.setCharacterEncoding("UTF-8");
+		writeExperienceCacheHeaders(resp, entry);
 
+		resp.getWriter().write(entry.getJson());
+	}
+
+	static void writeExperienceCacheHeaders(HttpServletResponse resp, ExperienceEntry entry)
+	{
+		if (entry.getModified() != null)
+		{
+			resp.setDateHeader("Last-Modified", entry.getModified().getTime());
+		}
+		if (entry.getEtag() != null)
+		{
+			resp.setHeader("Cache-Control", "max-age=300, stale-while-revalidate=604800");
+			resp.setHeader("ETag", entry.getEtag());
+		}
+	}
+
+	static void writeJSON(HttpServletResponse resp, Object item) throws IOException
+	{
+		String json = gson.toJson(item);
+		resp.setContentType("application/json");
+		resp.setCharacterEncoding("UTF-8");
+		resp.getWriter().write(json);
+	}
+
+	void write(HttpServletResponse resp, int status, String message)
+	{
+		logger.info(status + ": " + message);
+		resp.setStatus(status);
+	}
+
+	static String getExperienceID(HttpServletRequest req)
+	{
+		String url = req.getRequestURL().toString();
+		String experienceID = url.substring(url.lastIndexOf("/") + 1);
+		if (experienceID.endsWith(".artcode"))
+		{
+			experienceID = experienceID.substring(0, experienceID.indexOf(".artcode"));
+		}
+
+		return experienceID;
+	}
+
+	static User getUser(HttpServletRequest request)
+	{
 		try
 		{
-			User user = oauth.getCurrentUser(EndpointConstants.EMAIL_SCOPE);
-			String tokenAudience = oauth.getClientId(EndpointConstants.EMAIL_SCOPE);
-
-			if (!allowedClients.contains(tokenAudience))
+			final String authHeader = request.getHeader("Authorization");
+			if (authHeader != null && authHeader.startsWith("Bearer "))
 			{
-				throw new OAuthRequestException("audience of token '" + tokenAudience + "' is not in allowed client list");
+				final User user = oauth.getCurrentUser(EndpointConstants.EMAIL_SCOPE);
+				final String tokenAudience = oauth.getClientId(EndpointConstants.EMAIL_SCOPE);
+				if (!allowedClients.contains(tokenAudience))
+				{
+					throw new OAuthRequestException("audience of token '" + tokenAudience + "' is not in allowed client list");
+				}
+
+				logger.info("Authenticated as " + user.getEmail() + " (" + user.getUserId() + ")");
+
+				try
+				{
+					final String idTokenString = authHeader.substring("Bearer ".length());
+					//logger.info(idTokenString);
+					final GoogleIdToken idToken = verifier.verify(idTokenString);
+					if (idToken != null)
+					{
+						GoogleIdToken.Payload payload = idToken.getPayload();
+
+						// Print user identifier
+						String userId = payload.getSubject();
+						System.out.println("User ID: " + userId);
+
+						for (String key : payload.keySet())
+						{
+							logger.info(key + " = " + payload.get(key));
+						}
+					}
+					else
+					{
+						logger.info("Invalid ID token.");
+					}
+				}
+				catch (Exception e)
+				{
+					//logger.log(Level.INFO, e.getMessage(), e);
+				}
+
+				return user;
 			}
-
-			logger.info("Authenticated as " + user.getEmail() + " (" + user.getUserId() + ")");
-
-			return user;
 		}
 		catch (Exception e)
 		{
-			logger.info("Authentication failed: " + e.getMessage());
+			logger.info("Authentication failed: " + e.getMessage() + " " + e);
 			return null;
 		}
+		logger.info("No Authentication");
+		return null;
 	}
 }

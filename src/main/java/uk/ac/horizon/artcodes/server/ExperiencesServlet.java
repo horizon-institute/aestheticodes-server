@@ -20,8 +20,6 @@
 package uk.ac.horizon.artcodes.server;
 
 import com.google.appengine.api.users.User;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.googlecode.objectify.VoidWork;
 
 import java.io.IOException;
@@ -39,11 +37,11 @@ public class ExperiencesServlet extends ArtcodeServlet
 	//private static final Logger logger = Logger.getLogger(ExperiencesServlet.class.getName());
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		try
 		{
-			User user = getUser();
+			User user = getUser(request);
 			verifyUser(user);
 
 			final Collection<String> list = new HashSet<>();
@@ -74,15 +72,12 @@ public class ExperiencesServlet extends ArtcodeServlet
 				list.add(entry.getPublicID());
 			}
 
-			Gson gson = new GsonBuilder().create();
-			resp.setContentType("application/json");
-			resp.setCharacterEncoding("UTF-8");
-			resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
-			resp.getWriter().write(gson.toJson(list));
+			response.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
+			writeJSON(response, list);
 		}
 		catch (HTTPException e)
 		{
-			e.writeTo(req, resp);
+			e.writeTo(response);
 		}
 	}
 }
