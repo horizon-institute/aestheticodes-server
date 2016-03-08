@@ -1,5 +1,4 @@
-/src/main/resources/oauth.properties
+oauth.properties
 /.gradle
 /.idea
 /build
-EndpointConstants.java
