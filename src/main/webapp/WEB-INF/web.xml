@@ -37,6 +37,16 @@
 		<url-pattern>/experience/*</url-pattern>
 	</servlet-mapping>
 
+
+	<servlet>
+		<servlet-name>search</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.SearchServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>search</servlet-name>
+		<url-pattern>/search</url-pattern>
+	</servlet-mapping>
+
 	<servlet>
 		<servlet-name>experiences</servlet-name>
 		<servlet-class>uk.ac.horizon.artcodes.server.ExperiencesServlet</servlet-class>

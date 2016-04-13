@@ -169,8 +169,7 @@ public class ExperienceServlet extends ArtcodeServlet
 
 	private boolean canEdit(ExperienceEntry wrapper, User user)
 	{
-		return user != null && (EndpointConstants.ADMIN_USER.equals(user.getUserId()) || user.getUserId().equals(wrapper.getAuthorID()));
-
+		return user != null && (isAdmin(user) || user.getUserId().equals(wrapper.getAuthorID()));
 	}
 
 	private void verifyUserCanEdit(ExperienceEntry wrapper, User user) throws HTTPException

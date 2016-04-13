@@ -21,8 +21,6 @@ package uk.ac.horizon.artcodes.server;
 
 import com.google.appengine.api.search.Document;
 import com.google.appengine.api.search.Field;
-import com.google.appengine.api.search.Index;
-import com.google.appengine.api.search.PutException;
 import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -38,6 +36,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -94,10 +94,13 @@ public class ExperienceItems
 			JsonObject action = actionElement.getAsJsonObject();
 			if(action != null)
 			{
-				String owner = action.get("owner").getAsString();
-				if(owner != null && owner.equals("this"))
+				if(action.has("owner"))
 				{
-					action.addProperty("owner", fullID);
+					String owner = action.get("owner").getAsString();
+					if (owner != null && owner.equals("this"))
+					{
+						action.addProperty("owner", fullID);
+					}
 				}
 			}
 		}
@@ -151,35 +154,62 @@ public class ExperienceItems
 			}
 		});
 
-		ExperienceDetails details = gson.fromJson(entry.getJson(), ExperienceDetails.class);
+		index();
+	}
 
-		final Index index = SearchServlet.getIndex();
-		if (!availabilities.isEmpty())
+	private void index()
+	{
+		try
 		{
-			final Document doc = Document.newBuilder()
-					.setId(entry.getPublicID())
-					.addField(Field.newBuilder().setName("title").setText(details.getName()))
-					.addField(Field.newBuilder().setName("content").setText(details.getDescription()))
-					.addField(Field.newBuilder().setName("author").setText(details.getAuthor()))
-					.addField(Field.newBuilder().setName("modified").setDate(entry.getModified()))
-					.build();
-
-			try
+			if (!availabilities.isEmpty())
 			{
-				index.put(doc);
+				index(Collections.singletonList(entry));
 			}
-			catch (PutException e)
+			else
 			{
-				logger.log(Level.WARNING, e.getMessage(), e);
-				//if (StatusCode.TRANSIENT_ERROR.equals(e.getOperationResult().getCode()))
-				//{
-					// retry putting the document
-				//}
+				SearchServlet.getIndex().delete(entry.getPublicID());
 			}
 		}
-		else
+		catch (Exception e)
 		{
-			index.delete(entry.getPublicID());
+			logger.log(Level.WARNING, e.getMessage(), e);
+		}
+	}
+
+	public static void index(Collection<ExperienceEntry> entries)
+	{
+		try
+		{
+			final List<Document> documents = new ArrayList<>();
+			for(ExperienceEntry entry: entries)
+			{
+				try
+				{
+					final ExperienceDetails details = gson.fromJson(entry.getJson(), ExperienceDetails.class);
+
+					final Document.Builder doc = Document.newBuilder()
+							.setId(entry.getPublicID())
+							.addField(Field.newBuilder().setName("title").setText(details.getName()))
+							.addField(Field.newBuilder().setName("content").setText(details.getDescription()))
+							.addField(Field.newBuilder().setName("author").setText(details.getAuthor()));
+					if(entry.getModified() != null)
+					{
+						doc.addField(Field.newBuilder().setName("modified").setDate(entry.getModified()));
+					}
+
+					documents.add(doc.build());
+				}
+				catch (Exception e)
+				{
+					logger.log(Level.WARNING, "Error adding " + entry.getId() + ": " + e.getMessage());
+				}
+			}
+
+			SearchServlet.getIndex().put(documents);
+		}
+		catch (Exception e)
+		{
+			logger.log(Level.WARNING, e.getMessage(), e);
 		}
 	}
 }

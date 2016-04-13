@@ -63,7 +63,7 @@ public class RecommendedServlet extends ArtcodeServlet
 		}
 	}
 
-	private static final int limit = 4;
+	private static final int limit = 6;
 	private static final long recent = 86400000;
 	private static final Logger logger = Logger.getLogger(RecommendedServlet.class.getSimpleName());
 
@@ -219,80 +219,79 @@ public class RecommendedServlet extends ArtcodeServlet
 		}
 
 		logger.info("Results = " + ids.size());
-		if (ids.size() < limit)
+		List<ExperienceAvailability> availabilities = DataStore.load().type(ExperienceAvailability.class)
+				.filter("start <", now)
+				.filter("start >", now - recent)
+				.order("-start")
+				.list();
+
+		List<String> newIDs = new ArrayList<>();
+		for (ExperienceAvailability availability : availabilities)
 		{
-			List<ExperienceAvailability> availabilities = DataStore.load().type(ExperienceAvailability.class)
-					.filter("start <", now)
-					.filter("start >", now - recent)
-					.order("-start")
-					.list();
-
-			List<String> newIDs = new ArrayList<>();
-			for (ExperienceAvailability availability : availabilities)
+			if (!ids.contains(availability.getUri()))
 			{
-				if (!ids.contains(availability.getUri()))
+				if (availability.getLon() == null && availability.getLat() == null &&
+						availability.isActive(now))
 				{
-					if (availability.getLon() == null && availability.getLat() == null &&
-							availability.isActive(now))
-					{
-						newIDs.add(availability.getUri());
-						ids.add(availability.getUri());
-					}
-
-					if (newIDs.size() >= limit)
-					{
-						break;
-					}
+					newIDs.add(availability.getUri());
+					ids.add(availability.getUri());
 				}
-			}
 
-			if (!newIDs.isEmpty())
-			{
-				result.put("new", newIDs);
+				if (newIDs.size() >= limit)
+				{
+					break;
+				}
 			}
 		}
 
-		logger.info("Results = " + ids.size());
-		if (ids.size() < limit)
+		if (!newIDs.isEmpty())
 		{
-			List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
-					.filter("interactions !=", 0)
-					.order("-interactions")
-					.list();
+			result.put("new", newIDs);
+		}
 
-			List<String> popularIDs = new ArrayList<>();
-			for (ExperienceInteraction interaction : interactions)
+		logger.info("Results = " + ids.size());
+
+		List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
+				.filter("interactions !=", 0)
+				.order("-interactions")
+				.list();
+
+		List<String> popularIDs = new ArrayList<>();
+		for (ExperienceInteraction interaction : interactions)
+		{
+			if (interaction.getInteractions() > 0 && !ids.contains(interaction.getUri()))
 			{
-				if (interaction.getInteractions() > 0 && !ids.contains(interaction.getUri()))
+				availabilities = DataStore.load()
+						.type(ExperienceAvailability.class)
+						.filter("uri", interaction.getUri())
+						.list();
+				if (availabilities.isEmpty())
 				{
-					List<ExperienceAvailability> availabilities = DataStore.load()
-							.type(ExperienceAvailability.class)
-							.filter("uri", interaction.getUri())
-							.list();
-					if (availabilities.isEmpty())
+					ids.add(interaction.getUri());
+					popularIDs.add(interaction.getUri());
+				}
+				else
+				{
+					for (ExperienceAvailability availability : availabilities)
 					{
-						ids.add(interaction.getUri());
-						popularIDs.add(interaction.getUri());
-					}
-					else
-					{
-						for (ExperienceAvailability availability : availabilities)
+						if (availability.isActive(now))
 						{
-							if (availability.isActive(now))
-							{
-								ids.add(interaction.getUri());
-								popularIDs.add(interaction.getUri());
-								break;
-							}
+							ids.add(interaction.getUri());
+							popularIDs.add(interaction.getUri());
+							break;
 						}
 					}
 				}
 			}
-
-			if (!popularIDs.isEmpty())
+			if (popularIDs.size() >= limit)
 			{
-				result.put("popular", popularIDs);
+				break;
 			}
+		}
+
+		if (!popularIDs.isEmpty())
+		{
+			result.put("popular", popularIDs);
 		}
 
 		resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");

@@ -28,23 +28,27 @@ import com.google.appengine.api.search.Results;
 import com.google.appengine.api.search.ScoredDocument;
 import com.google.appengine.api.search.SearchServiceFactory;
 import com.google.appengine.api.search.SortOptions;
+import com.google.appengine.api.users.User;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
+
+import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
+import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 
 public class SearchServlet extends ArtcodeServlet
 {
 	//private static final Logger logger = Logger.getLogger(SearchServlet.class.getName());
-	private static final String INDEX_NAME = "";
 
 	public static Index getIndex()
 	{
-		return SearchServiceFactory.getSearchService().getIndex(IndexSpec.newBuilder().setName(SearchServlet.INDEX_NAME));
-
+		return SearchServiceFactory.getSearchService().getIndex(IndexSpec.newBuilder().setName(getIndexName()));
 	}
 
 	@Override
@@ -52,7 +56,34 @@ public class SearchServlet extends ArtcodeServlet
 	{
 		try
 		{
-			getUser(request);
+			String index = request.getParameter("index");
+			if (index != null && index.equals("true"))
+			{
+				User user = getUser(request);
+				if (isAdmin(user))
+				{
+					final List<ExperienceAvailability> availabilities = DataStore.load()
+							.type(ExperienceAvailability.class)
+							.list();
+
+					final Collection<String> ids = new HashSet<>();
+					final List<ExperienceEntry> entries = new ArrayList<>();
+					for (ExperienceAvailability availability : availabilities)
+					{
+						if(!ids.contains(availability.getUri()))
+						{
+							ids.add(availability.getUri());
+							ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(getEntryID(availability.getUri())).now();
+							if(entry != null)
+							{
+								entries.add(entry);
+							}
+						}
+					}
+
+					ExperienceItems.index(entries);
+				}
+			}
 
 
 			final Query query = Query.newBuilder()
@@ -67,7 +98,7 @@ public class SearchServlet extends ArtcodeServlet
 			Results<ScoredDocument> results = getIndex().search(query);
 
 			List<String> ids = new ArrayList<>();
-			for(ScoredDocument result: results)
+			for (ScoredDocument result : results)
 			{
 				ids.add(result.getId());
 			}
