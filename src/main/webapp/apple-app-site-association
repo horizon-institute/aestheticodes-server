@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "703429621.uk.ac.horizon.aestheticodes",
+        "paths": [
+          "/experience/*"
+        ]
+      }
+    ]
+  }
+}
