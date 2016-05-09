@@ -85,7 +85,6 @@ public class SearchServlet extends ArtcodeServlet
 				}
 			}
 
-
 			final Query query = Query.newBuilder()
 					.setOptions(QueryOptions.newBuilder()
 							.setLimit(20)

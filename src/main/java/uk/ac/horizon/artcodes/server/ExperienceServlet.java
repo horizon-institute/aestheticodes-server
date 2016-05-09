@@ -49,8 +49,7 @@ public class ExperienceServlet extends ArtcodeServlet
 			final String experienceID = getExperienceID(request);
 			ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
 			verifyUserCanEdit(entry, user);
-
-
+			
 			final List<ExperienceAvailability> existingAvails = DataStore.load()
 					.type(ExperienceAvailability.class)
 					.filter("uri", entry.getPublicID())
@@ -59,6 +58,8 @@ public class ExperienceServlet extends ArtcodeServlet
 			final ExperienceInteraction interaction = DataStore.load().type(ExperienceInteraction.class).id(entry.getPublicID()).now();
 
 			final ExperienceDeleted deleted = new ExperienceDeleted(entry);
+
+			SearchServlet.getIndex().delete(entry.getPublicID());
 
 			DataStore.get().transact(new VoidWork()
 			{
