@@ -172,7 +172,7 @@ public class RecommendedServlet extends ArtcodeServlet
 						{
 							final double distance = availability.getMilesFrom(location.latitude, location.longitude);
 							logger.info(availability.getUri() + " has distance = " + distance);
-							if (distance < 5)
+							if (distance < 100)
 							{
 								nearby.add(new Nearby(availability.getUri(), distance));
 							}
