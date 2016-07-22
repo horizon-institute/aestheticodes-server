@@ -1,0 +1,301 @@
+{
+  "experiences": {
+    "uk.ac.horizon.aestheticodes.default": {
+      "icon": "http://www.wornchaos.org/experiences/uk.ac.horizon.aestheticodes.default.png",
+      "id": "uk.ac.horizon.aestheticodes.default",
+      "markers": [
+        {
+          "action": "http://www.dboxy.org/d-box-111223/",
+          "code": "1:1:1:2:2:3",
+          "showDetail": false
+        },
+        {
+          "action": "http://www.dboxy.org/d-box-112233/",
+          "code": "1:1:2:2:3:3",
+          "showDetail": false
+        },
+        {
+          "action": "http://www.aestheticodes.com",
+          "code": "1:1:1:1:2",
+          "showDetail": false
+        },
+        {
+          "action": "http://www.dboxy.org/d-box-113335/",
+          "code": "1:1:3:3:3:5",
+          "showDetail": false
+        },
+        {
+          "action": "http://www.aestheticodes.com",
+          "code": "1:1:2:3:5",
+          "showDetail": true
+        },
+        {
+          "action": "http://www.aestheticodes.com",
+          "code": "1:1:2:4:4",
+          "showDetail": true
+        },
+        {
+          "action": "http://www.aestheticodes.com",
+          "code": "1:1:1:4:5",
+          "showDetail": true
+        },
+        {
+          "action": "http://www.dboxy.org/d-box-111234/",
+          "code": "1:1:1:2:3:4",
+          "showDetail": false
+        },
+        {
+          "action": "http://www.dboxy.org/d-box-112345/",
+          "code": "1:1:2:3:4:5",
+          "showDetail": false
+        },
+        {
+          "action": "http://www.dboxy.org/d-box-112334/",
+          "code": "1:1:2:3:3:4",
+          "showDetail": false
+        },
+        {
+          "action": "http://aestheticodes.com/teach-me/",
+          "code": "1:1:3:3:4",
+          "description": "To celebrate its 22nd anniversary in orbit, the Hubble Space Telescope has released a dramatic new image of the star-forming region 30 Doradus, also known as the Tarantula Nebula because its glowing filaments resemble spider legs. A new image from all three of NASA's Great Observatories - Chandra, Hubble, and Spitzer - has also been created to mark the event.",
+          "image": "http://www.nasa.gov/images/content/641181main_30dor2_665.jpg",
+          "title": "How to Draw",
+          "showDetail": false
+        },
+        {
+          "action": "http://www.dboxy.org/d-box-111124/",
+          "code": "1:1:1:1:2:4",
+          "title": "D-Box 1:1:1:1:2:4",
+          "showDetail": false
+        },
+        {
+          "action": "http://www.dboxy.org/d-box-111114/",
+          "code": "1:1:1:1:1:4",
+          "title": "D-Box 1:1:1:1:1:4",
+          "showDetail": false
+        }
+      ],
+      "name": "Artcodes",
+      "threshold": "temporalTile",
+      "checksumModulo": 1,
+      "maxEmptyRegions": 0,
+      "maxRegionValue": 6,
+      "maxRegions": 6,
+      "minRegions": 6,
+      "originalVersion": 0,
+      "validationRegionValue": 1,
+      "validationRegions": 2,
+      "version": 11
+    },
+    "a1572407-2550-4313-8c7a-b914f6d5ea11": {
+      "markers": [
+        {
+          "code": "1:1:1:1:1:4+1:1:1:4:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/08/06/how-swords-created-in-the-ancient-britain-time/",
+          "title": "Making Ancient Sword ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:2:4+1:1:3:5:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/08/06/roman-religion/",
+          "title": "Roman Religion ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:3:3+1:1:1:1:3:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/the-techniques-that-used-for-creating-coin-in-the-ancient-greek-world/",
+          "title": "Making Ancient Coin",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:2:4",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/08/06/cruciform-brooch-2/",
+          "title": "Cruciform Brooch ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:1:3:5>1:1:1:3:3",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/the-beginnings-of-coinage/",
+          "title": "The Beginning of Coinage",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:3:5:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/mounted-warrior/",
+          "title": "Mounted Warrior ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:1:5>1:1:1:1:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/the-interactive-map/possible-interaction-of-the-map/",
+          "title": "Possible Interaction of the Map",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:4:4:5+1:1:2:2:3",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/decorated-pottery/",
+          "title": "Decorated Pottery",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:2:3:5>1:1:2:2:6",
+          "action": "http://aestheticodes.com/teach-me/",
+          "title": "How to Draw Your Own Artcodes",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:4:4:5>1:4:4:4:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/08/06/the-romans-in-britain-imported-pottery/",
+          "title": "Imported Roman Pottery ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:3:3",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/the-hand-of-god-roman-bronze-coin/",
+          "title": "The Hand of God Coin",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:4:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/british-basal-looped-spearhead/",
+          "title": "British Spearhead ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:4:4:5>1:1:2:2:3:3>1:4:4:4:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/how-bowls-were-created-in-ancient-britain/",
+          "title": "Creating Ancient Bowl",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:3:6>1:1:2:2:6",
+          "action": "http://aestheticodes.com/",
+          "title": "Aestheticodes Technology ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:2:2:6+1:1:2:3:5",
+          "action": "http://aestheticodes.com/",
+          "title": "Aestheticodes Technology ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:4:4:5+1:4:4:4:5+1:1:2:2:3:3",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/bowl-and-pottery/",
+          "title": "Bowl and Pottery ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:2:2:3:3",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/the-bronze-bowl/",
+          "title": "The Bronze Bowl ",
+          "showDetail": false
+        },
+        {
+          "code": "1:2:2:2:2",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/nottinghamshire/nottinghamshire-on-the-map/",
+          "title": "Map of the Nottinghamshire",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:1:3:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/earliest-coins-brought-to-the-britain-celtic-coinage/",
+          "title": "The Earliest Coin brought to Britain",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:1:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/the-interactive-map/aims-of-the-interactive-map/",
+          "title": "Aim of the Interactive Map",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:3:5:5>1:1:1:2:2:2",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/museum-collections/metal-objects/",
+          "title": "Metal Work ",
+          "showDetail": false
+        },
+        {
+          "code": "1:4:4:4:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/lincoln-pottery-type/",
+          "title": "Lincoln Pottery ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:3:6+1:1:2:2:6",
+          "action": "http://aestheticodes.com/teach-me/",
+          "title": "How to Draw Your Own Artcodes",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:2:2:2",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/the-battle-axes/",
+          "title": "The Axes ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:2:2:6",
+          "action": "https://en.m.wikipedia.org/wiki/Nottingham_Castle",
+          "title": "Nottingham Castle",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:2:3:5",
+          "action": "http://www.nottingham.ac.uk/museum/",
+          "title": "The University of Nottingham Museum",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:2:2:3:3>1:4:4:4:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/08/06/cooking-pots/",
+          "title": "Ancient Cooking Pots",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:4:4:5>1:1:2:2:3:3",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/08/06/roman-pottery/",
+          "title": "Roman Pottery ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:4:4:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/tin-glazed-plate/",
+          "title": "Tin-glazed Plate ",
+          "showDetail": false
+        },
+        {
+          "code": "1:4:4:4:5+1:1:2:2:3:3",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/08/06/imported-samian-pottery/",
+          "title": "Imported Samian Pottery",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:1:1:1:4",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/07/24/bronze-sword/",
+          "title": "Bronze Sword ",
+          "showDetail": false
+        },
+        {
+          "code": "1:1:4:4:5+1:4:4:4:5",
+          "action": "http://spoofbag.com/aestheticodes.com/index.php/2015/08/06/pots-usages/",
+          "title": "The Usage of Ancient Pots",
+          "showDetail": false
+        }
+      ],
+      "availabilities": [],
+      "id": "a1572407-2550-4313-8c7a-b914f6d5ea11",
+      "name": "Museum",
+      "icon": "http://www.wornchaos.org/experiences/1.jpeg",
+      "image": "http://www.wornchaos.org/experiences/1.jpeg",
+      "version": 1,
+      "threshold": "temporalTile",
+      "op": "create",
+      "minRegions": 5,
+      "maxRegions": 6,
+      "maxEmptyRegions": 0,
+      "maxRegionValue": 6,
+      "checksumModulo": 3,
+      "embeddedChecksum": false
+    }
+  }
+}

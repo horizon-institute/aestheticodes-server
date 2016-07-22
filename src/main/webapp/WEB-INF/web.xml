@@ -83,7 +83,17 @@
 		<url-pattern>/image/*</url-pattern>
 	</servlet-mapping>
 
-	<filter>
+    <servlet>
+        <servlet-name>old_experiences</servlet-name>
+        <servlet-class>uk.ac.horizon.artcodes.server.OldExperienceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>old_experiences</servlet-name>
+        <url-pattern>/_ah/api/experiences/v1/experiences</url-pattern>
+    </servlet-mapping>
+
+
+    <filter>
 		<filter-name>ObjectifyFilter</filter-name>
 		<filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
 	</filter>
