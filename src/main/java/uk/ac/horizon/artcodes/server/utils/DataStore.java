@@ -29,7 +29,7 @@ import uk.ac.horizon.aestheticodes.model.ExperienceDeleted;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 
-class DataStore
+public class DataStore
 {
 	static
 	{

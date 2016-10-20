@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 
-abstract class ArtcodeServlet extends HttpServlet
+public abstract class ArtcodeServlet extends HttpServlet
 {
 	private static final Gson gson = new GsonBuilder().create();
 	private static final Logger logger = Logger.getLogger(ArtcodeServlet.class.getSimpleName());
@@ -63,12 +63,12 @@ abstract class ArtcodeServlet extends HttpServlet
 		allowedClients.add(properties.getProperty("ios_Client_ID"));
 	}
 
-	static String getIndexName()
+	protected static String getIndexName()
 	{
 		return properties.getProperty("index");
 	}
 
-	static void verifyUser(User user) throws HTTPException
+	protected static void verifyUser(User user) throws HTTPException
 	{
 		if (user == null)
 		{
@@ -76,7 +76,7 @@ abstract class ArtcodeServlet extends HttpServlet
 		}
 	}
 
-	static void writeExperience(HttpServletResponse resp, ExperienceEntry entry) throws IOException
+	protected static void writeExperience(HttpServletResponse resp, ExperienceEntry entry) throws IOException
 	{
 		resp.setContentType("application/x-artcode");
 		resp.setCharacterEncoding("UTF-8");
@@ -85,7 +85,7 @@ abstract class ArtcodeServlet extends HttpServlet
 		resp.getWriter().write(entry.getJson());
 	}
 
-	static void writeExperienceCacheHeaders(HttpServletResponse resp, ExperienceEntry entry)
+	protected static void writeExperienceCacheHeaders(HttpServletResponse resp, ExperienceEntry entry)
 	{
 		if (entry.getModified() != null)
 		{
@@ -98,12 +98,12 @@ abstract class ArtcodeServlet extends HttpServlet
 		}
 	}
 
-	static boolean isAdmin(User user)
+	protected static boolean isAdmin(User user)
 	{
 		return user != null && user.getUserId() != null && user.getUserId().equals(properties.getProperty("admin_user"));
 	}
 
-	static void writeJSON(HttpServletResponse resp, Object item) throws IOException
+	protected static void writeJSON(HttpServletResponse resp, Object item) throws IOException
 	{
 		String json = gson.toJson(item);
 		resp.setContentType("application/json");
@@ -111,13 +111,13 @@ abstract class ArtcodeServlet extends HttpServlet
 		resp.getWriter().write(json);
 	}
 
-	static String getExperienceID(HttpServletRequest req)
+	protected static String getExperienceID(HttpServletRequest req)
 	{
 		String url = req.getRequestURL().toString();
 		return getEntryID(url);
 	}
 
-	static String getEntryID(String url)
+	protected static String getEntryID(String url)
 	{
 		String experienceID = url.substring(url.lastIndexOf("/") + 1);
 		if (experienceID.endsWith(".artcode"))
@@ -128,7 +128,20 @@ abstract class ArtcodeServlet extends HttpServlet
 		return experienceID;
 	}
 
-	static User getUser(HttpServletRequest request)
+	protected static void verifyApp(HttpServletRequest request) throws HTTPException
+	{
+		final String authHeader = request.getHeader("Authorization");
+		if (authHeader != null)
+		{
+			if (allowedClients.contains(authHeader))
+			{
+				return;
+			}
+		}
+		throw new HTTPException(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+	}
+
+	protected static User getUser(HttpServletRequest request)
 	{
 		try
 		{

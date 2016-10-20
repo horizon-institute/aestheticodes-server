@@ -21,6 +21,9 @@ package uk.ac.horizon.artcodes.server;
 
 import com.google.appengine.api.users.User;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
+import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
+import uk.ac.horizon.artcodes.server.utils.DataStore;
+import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,8 +39,7 @@ public class InteractionServlet extends ArtcodeServlet
 	{
 		try
 		{
-			User user = getUser(request);
-			verifyUser(user);
+			verifyApp(request);
 			String experienceID = request.getParameter("experience");
 
 			logger.info(experienceID);

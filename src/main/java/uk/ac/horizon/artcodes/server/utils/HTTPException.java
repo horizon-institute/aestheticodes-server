@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class HTTPException extends IOException
+public class HTTPException extends IOException
 {
 	private static final Logger logger = Logger.getLogger(HTTPException.class.getName());
 

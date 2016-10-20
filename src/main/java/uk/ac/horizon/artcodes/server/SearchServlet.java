@@ -41,6 +41,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
+import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
+import uk.ac.horizon.artcodes.server.utils.DataStore;
+import uk.ac.horizon.artcodes.server.utils.ExperienceItems;
+import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
 public class SearchServlet extends ArtcodeServlet
 {

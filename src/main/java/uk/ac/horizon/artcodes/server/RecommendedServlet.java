@@ -36,9 +36,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
+import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
+import uk.ac.horizon.artcodes.server.utils.DataStore;
 
 public class RecommendedServlet extends ArtcodeServlet
 {
+	// TODO Optimise!
+
 	private class Nearby
 	{
 		private final String uri;

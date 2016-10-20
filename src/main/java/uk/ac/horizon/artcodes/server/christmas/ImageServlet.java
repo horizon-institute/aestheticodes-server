@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.horizon.artcodes.server;
+package uk.ac.horizon.artcodes.server.christmas;
 
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
@@ -33,12 +33,13 @@ import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
 import com.google.common.io.ByteStreams;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
@@ -100,7 +101,7 @@ public class ImageServlet extends ArtcodeServlet
 				throw new HTTPException(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE, "Image too large");
 			}
 
-			verifyUser(getUser(request));
+			verifyApp(request);
 			final String id = getImageID(request);
 			final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
 			final GcsFilename filename = new GcsFilename(request.getServerName(), id);

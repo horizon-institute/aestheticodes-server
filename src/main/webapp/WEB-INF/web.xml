@@ -38,7 +38,17 @@
 	</servlet-mapping>
 
 
-	<servlet>
+    <servlet>
+        <servlet-name>christmas-experience</servlet-name>
+        <servlet-class>uk.ac.horizon.artcodes.server.christmas.ExperienceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>christmas-experience</servlet-name>
+        <url-pattern>christmas/experience/*</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
 		<servlet-name>search</servlet-name>
 		<servlet-class>uk.ac.horizon.artcodes.server.SearchServlet</servlet-class>
 	</servlet>
@@ -73,6 +83,15 @@
 		<servlet-name>interaction</servlet-name>
 		<url-pattern>/interaction</url-pattern>
 	</servlet-mapping>
+
+    <servlet>
+        <servlet-name>christmas-image</servlet-name>
+        <servlet-class>uk.ac.horizon.artcodes.server.christmas.ImageServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>christmas-image</servlet-name>
+        <url-pattern>christmas/image/*</url-pattern>
+    </servlet-mapping>
 
 	<servlet>
 		<servlet-name>image</servlet-name>

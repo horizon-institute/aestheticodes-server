@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
+
 public class OldExperienceServlet extends HttpServlet
 {
 	@Override
