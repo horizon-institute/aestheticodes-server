@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.horizon.artcodes.server;
+package uk.ac.horizon.artcodes.server.utils;
 
 import com.google.appengine.api.search.Document;
 import com.google.appengine.api.search.Field;
@@ -31,6 +31,7 @@ import com.googlecode.objectify.VoidWork;
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
+import uk.ac.horizon.artcodes.server.SearchServlet;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.Reader;
