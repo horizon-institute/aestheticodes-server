@@ -19,9 +19,6 @@
 
 package uk.ac.horizon.artcodes.server.christmas;
 
-import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
 import com.google.appengine.tools.cloudstorage.GcsFileOptions;
 import com.google.appengine.tools.cloudstorage.GcsFilename;
@@ -48,47 +45,16 @@ public class ImageServlet extends ArtcodeServlet
 {
 	private static final int image_size = 512 * 1024;
 
-	@Override
-	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws IOException
-	{
-		final String id = getImageID(req);
-		final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-		final GcsFilename filename = new GcsFilename(req.getServerName(), id);
-		final GcsFileMetadata metadata = gcsService.getMetadata(filename);
-		if (metadata == null)
-		{
-			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		}
-		else
-		{
-			resp.setStatus(HttpServletResponse.SC_OK);
-		}
-	}
-
-
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
-	{
-		final String id = getImageID(req);
-		final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-		final GcsFilename filename = new GcsFilename(req.getServerName(), id);
-		final GcsFileMetadata metadata = gcsService.getMetadata(filename);
-		if (metadata == null)
-		{
-			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		}
-		else
-		{
-			BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-			BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + req.getServerName() + "/" + id);
-			resp.addHeader("Cache-Control", "max-age=31556926");
-			blobstoreService.serve(blobKey, resp);
-		}
-	}
-
 	private String getImageID(HttpServletRequest req)
 	{
 		String url = req.getRequestURL().toString();
 		return url.substring(url.lastIndexOf("/") + 1);
+	}
+
+	@Override
+	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException
+	{
+		doPut(request, response);
 	}
 
 	@Override

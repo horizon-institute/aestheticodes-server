@@ -29,6 +29,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.googlecode.objectify.VoidWork;
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
+import uk.ac.horizon.aestheticodes.model.ExperienceCache;
 import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.SearchServlet;
@@ -134,6 +135,22 @@ public class ExperienceItems
 
 	public void save()
 	{
+		final List<ExperienceCache> caches = DataStore.load().type(ExperienceCache.class).list();
+		final List<ExperienceCache> toDelete = new ArrayList<>();
+		for(ExperienceCache cache: caches)
+		{
+			if(cache.getExperiences().contains(entry.getPublicID()))
+			{
+				toDelete.add(cache);
+			}
+		}
+
+		if(!toDelete.isEmpty())
+		{
+			logger.info("Deleting " + toDelete.size() + " cache entries");
+			DataStore.get().delete().entities(toDelete);
+		}
+
 		final List<ExperienceAvailability> existingAvails = DataStore.load()
 				.type(ExperienceAvailability.class)
 				.filter("uri", entry.getPublicID())

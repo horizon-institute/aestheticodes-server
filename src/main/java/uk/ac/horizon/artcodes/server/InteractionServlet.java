@@ -19,7 +19,7 @@
 
 package uk.ac.horizon.artcodes.server;
 
-import com.google.appengine.api.users.User;
+import uk.ac.horizon.aestheticodes.model.ExperienceCache;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
@@ -54,6 +54,7 @@ public class InteractionServlet extends ArtcodeServlet
 			interaction.increment();
 
 			DataStore.save().entity(interaction);
+			DataStore.get().delete().type(ExperienceCache.class).id("popular");
 		}
 		catch (HTTPException e)
 		{

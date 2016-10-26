@@ -21,7 +21,6 @@ package uk.ac.horizon.aestheticodes.model;
 
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Ignore;
 import com.googlecode.objectify.annotation.Index;
 
 import java.util.Date;
@@ -38,9 +37,6 @@ public class ExperienceEntry
 	private String etag;
 
 	private String json;
-
-	@Ignore
-	private double distance;
 
 	private Date created;
 
@@ -64,16 +60,6 @@ public class ExperienceEntry
 	public void setAuthorID(String authorID)
 	{
 		this.authorID = authorID;
-	}
-
-	public double getDistance()
-	{
-		return distance;
-	}
-
-	public void setDistance(double distance)
-	{
-		this.distance = distance;
 	}
 
 	public String getEtag()

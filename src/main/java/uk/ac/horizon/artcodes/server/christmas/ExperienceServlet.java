@@ -27,47 +27,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
-import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.ExperienceItems;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
 public class ExperienceServlet extends ArtcodeServlet
 {
 	private static final Logger logger = Logger.getLogger(ExperienceServlet.class.getSimpleName());
-
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
-	{
-		try
-		{
-			String experienceID = getExperienceID(request);
-
-			logger.info(experienceID);
-
-			final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
-			if (entry != null)
-			{
-				if (request.getHeader("If-None-Match") != null && request.getHeader("If-None-Match").equals(entry.getEtag()))
-				{
-					throw new HTTPException(HttpServletResponse.SC_NOT_MODIFIED, "No Change");
-				}
-				else
-				{
-					writeExperience(response, entry);
-				}
-			}
-			else
-			{
-				throw new HTTPException(HttpServletResponse.SC_NOT_FOUND, "Not found");
-			}
-		}
-		catch (HTTPException e)
-		{
-			e.writeTo(response);
-		}
-	}
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -77,8 +43,10 @@ public class ExperienceServlet extends ArtcodeServlet
 			verifyApp(request);
 			final String experienceID = UUID.randomUUID().toString();
 			final ExperienceItems items = ExperienceItems.create(experienceID, request.getReader());
-			// TODO items.getEntry().setAuthorID(user.getUserId());
+			items.getEntry().setAuthorID("christmartcodes@gmail.com");
 			items.save();
+
+			logger.info("Created experience " + items.getEntry().getPublicID());
 
 			writeExperience(response, items.getEntry());
 		}

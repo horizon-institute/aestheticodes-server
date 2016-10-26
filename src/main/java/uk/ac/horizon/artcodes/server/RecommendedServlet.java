@@ -35,20 +35,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
+import uk.ac.horizon.aestheticodes.model.ExperienceCache;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
 
 public class RecommendedServlet extends ArtcodeServlet
 {
-	// TODO Optimise!
-
 	private class Nearby
 	{
 		private final String uri;
 		private final double distance;
 
-		public Nearby(String uri, double distance)
+		Nearby(String uri, double distance)
 		{
 			this.uri = uri;
 			this.distance = distance;
@@ -57,17 +56,61 @@ public class RecommendedServlet extends ArtcodeServlet
 
 	private class LatLng
 	{
+		private static final double precision = 1000d;
 		private final double latitude;
 		private final double longitude;
 
 		LatLng(double latitude, double longitude)
 		{
-			this.latitude = latitude;
-			this.longitude = longitude;
+			this.latitude = Math.round(latitude * precision) / precision;
+			this.longitude = Math.round(longitude * precision) / precision;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "lat:" + latitude + ",lng:" + longitude;
+		}
+	}
+
+	private class Result
+	{
+		private final int limit;
+		private final Set<String> ids = new HashSet<>();
+		private final Map<String, List<String>> result = new HashMap<>();
+
+		private Result(int limit)
+		{
+			this.limit = limit;
+		}
+
+		void add(String category, List<String> experiences)
+		{
+			final List<String> finalExperiences = new ArrayList<>();
+			for (String experience : experiences)
+			{
+				if (!ids.contains(experience))
+				{
+					ids.add(experience);
+					finalExperiences.add(experience);
+				}
+
+				if (finalExperiences.size() >= limit)
+				{
+					break;
+				}
+			}
+			result.put(category, finalExperiences);
+		}
+
+		void write(HttpServletResponse response) throws IOException
+		{
+			writeJSON(response, result);
 		}
 	}
 
 	private static final int limit = 6;
+	private static final int nearbyDistance = 100;
 	private static final long recent = 86400000;
 	private static final Logger logger = Logger.getLogger(RecommendedServlet.class.getSimpleName());
 
@@ -79,11 +122,11 @@ public class RecommendedServlet extends ArtcodeServlet
 			{
 				return new LatLng(Double.parseDouble(req.getParameter("lat")), Double.parseDouble(req.getParameter("lon")));
 			}
-			else if (req.getHeader("X-AppEngine-CityLatLong") != null)
-			{
-				String[] positions = req.getHeader("X-AppEngine-CityLatLong").split(",");
-				return new LatLng(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]));
-			}
+//			else if (req.getHeader("X-AppEngine-CityLatLong") != null)
+//			{
+//				String[] positions = req.getHeader("X-AppEngine-CityLatLong").split(",");
+//				return new LatLng(Double.parseDouble(positions[0]), Double.parseDouble(positions[1]));
+//			}
 		}
 		catch (Exception e)
 		{
@@ -92,137 +135,132 @@ public class RecommendedServlet extends ArtcodeServlet
 		return null;
 	}
 
-	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	private List<String> getFeaturedExperiences()
 	{
-		final long now = System.currentTimeMillis();
-		int limit = RecommendedServlet.limit;
-		if (req.getParameter("limit") != null)
+		final ExperienceCache cache = DataStore.load().type(ExperienceCache.class).id("featured").now();
+		if (cache != null)
 		{
-			try
-			{
-				limit = Integer.parseInt(req.getParameter("limit"));
-			}
-			catch (Exception e)
-			{
-				logger.info(e.getMessage());
-			}
+			return cache.getExperiences();
 		}
+		return Collections.emptyList();
+	}
 
-		final Map<String, List<String>> result = new HashMap<>();
-		final Set<String> ids = new HashSet<>();
-
-		try
+	private List<String> getNearbyExperiences(LatLng location)
+	{
+		if (location != null)
 		{
-			logger.info("Results = " + ids.size());
-			if (ids.size() < limit)
+			final ExperienceCache cache = DataStore.load().type(ExperienceCache.class).id(location.toString()).now();
+			if (cache != null)
 			{
-				List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
-						.filter("featured", true)
-						.list();
-
-				List<String> feturedIDs = new ArrayList<>();
-				for (ExperienceInteraction interaction : interactions)
-				{
-					if (!ids.contains(interaction.getUri()))
-					{
-						List<ExperienceAvailability> availabilities = DataStore.load()
-								.type(ExperienceAvailability.class)
-								.filter("uri", interaction.getUri())
-								.list();
-
-						if (availabilities.isEmpty())
-						{
-							ids.add(interaction.getUri());
-							feturedIDs.add(interaction.getUri());
-						}
-						else
-						{
-							for (ExperienceAvailability availability : availabilities)
-							{
-								if (availability.isActive(now))
-								{
-									ids.add(interaction.getUri());
-									feturedIDs.add(interaction.getUri());
-									break;
-								}
-							}
-						}
-					}
-				}
-
-				if (!feturedIDs.isEmpty())
-				{
-					result.put("featured", feturedIDs);
-				}
+				return cache.getExperiences();
 			}
 
 			final List<Nearby> nearby = new ArrayList<>();
-			LatLng location = getLocation(req);
-			if (location != null)
+			final List<ExperienceAvailability> availabilities = DataStore.load().type(ExperienceAvailability.class)
+					.filter("lat !=", null)
+					.list();
+
+			logger.info("Found " + availabilities.size() + " location results");
+			for (ExperienceAvailability availability : availabilities)
 			{
-				// TODO Optimise with grid?
-				final List<ExperienceAvailability> availabilities = DataStore.load().type(ExperienceAvailability.class)
-						.filter("lat !=", null)
-						.list();
-
-				logger.info("Found " + availabilities.size() + " location results");
-
-				for (ExperienceAvailability availability : availabilities)
+				if (availability.isActive())
 				{
-					if (availability.isActive(now))
+					try
 					{
-						try
+						final double distance = availability.getMilesFrom(location.latitude, location.longitude);
+						if (distance < nearbyDistance)
 						{
-							final double distance = availability.getMilesFrom(location.latitude, location.longitude);
-							logger.info(availability.getUri() + " has distance = " + distance);
-							if (distance < 100)
-							{
-								nearby.add(new Nearby(availability.getUri(), distance));
-							}
+							nearby.add(new Nearby(availability.getUri(), distance));
 						}
-						catch (Exception e)
-						{
-							logger.log(Level.WARNING, e.getMessage(), e);
-						}
+					}
+					catch (Exception e)
+					{
+						logger.log(Level.WARNING, e.getMessage(), e);
 					}
 				}
+			}
+			logger.info("Found " + nearby.size() + " locations near to " + location);
 
-				Collections.sort(nearby, new Comparator<Nearby>()
+			Collections.sort(nearby, new Comparator<Nearby>()
+			{
+				@Override
+				public int compare(Nearby o1, Nearby o2)
 				{
-					@Override
-					public int compare(Nearby o1, Nearby o2)
-					{
-						return (int) ((o1.distance - o2.distance) * 10000);
-					}
-				});
+					return (int) ((o1.distance - o2.distance) * 10000);
+				}
+			});
 
-				final List<String> nearbyIDs = new ArrayList<>();
-				for (Nearby nearbyID : nearby)
+			final List<String> nearbyIDs = new ArrayList<>();
+			for (Nearby nearbyID : nearby)
+			{
+				nearbyIDs.add(nearbyID.uri);
+				if (nearbyIDs.size() >= limit)
 				{
-					if (!ids.contains(nearbyID.uri))
+					break;
+				}
+			}
+
+			final ExperienceCache nearbyCache = new ExperienceCache(location.toString(), nearbyIDs);
+			DataStore.save().entity(nearbyCache);
+
+			return nearbyIDs;
+		}
+		return Collections.emptyList();
+	}
+
+	private List<String> getPopularExperiences()
+	{
+		final ExperienceCache cache = DataStore.load().type(ExperienceCache.class).id("popular").now();
+		if (cache != null)
+		{
+			return cache.getExperiences();
+		}
+		List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
+				.filter("interactions !=", 0)
+				.order("-interactions")
+				.list();
+
+		List<String> popularIDs = new ArrayList<>();
+		for (ExperienceInteraction interaction : interactions)
+		{
+			if (interaction.getInteractions() > 0)
+			{
+				List<ExperienceAvailability> availabilities = DataStore.load()
+						.type(ExperienceAvailability.class)
+						.filter("uri", interaction.getUri())
+						.list();
+				if (availabilities.isEmpty())
+				{
+					popularIDs.add(interaction.getUri());
+				}
+				else
+				{
+					for (ExperienceAvailability availability : availabilities)
 					{
-						ids.add(nearbyID.uri);
-						nearbyIDs.add(nearbyID.uri);
-						if (nearbyIDs.size() >= limit)
+						if (availability.isActive())
 						{
+							popularIDs.add(interaction.getUri());
 							break;
 						}
 					}
 				}
-
-				if (!nearbyIDs.isEmpty())
-				{
-					result.put("nearby", nearbyIDs);
-				}
 			}
 		}
-		catch (Exception e)
-		{
-			logger.log(Level.WARNING, e.getMessage(), e);
-		}
 
-		logger.info("Results = " + ids.size());
+		ExperienceCache popularCache = new ExperienceCache("popular", popularIDs);
+		DataStore.save().entity(popularCache);
+		return popularIDs;
+	}
+
+	private List<String> getNewExperiences()
+	{
+		final ExperienceCache cache = DataStore.load().type(ExperienceCache.class).id("new").now();
+		if (cache != null)
+		{
+			// TODO Check cache hasn't timed out
+			return cache.getExperiences();
+		}
+		Long now = System.currentTimeMillis();
 		List<ExperienceAvailability> availabilities = DataStore.load().type(ExperienceAvailability.class)
 				.filter("start <", now)
 				.filter("start >", now - recent)
@@ -232,73 +270,29 @@ public class RecommendedServlet extends ArtcodeServlet
 		List<String> newIDs = new ArrayList<>();
 		for (ExperienceAvailability availability : availabilities)
 		{
-			if (!ids.contains(availability.getUri()))
+			if (availability.getLon() == null && availability.getLat() == null &&
+					availability.isActive(now))
 			{
-				if (availability.getLon() == null && availability.getLat() == null &&
-						availability.isActive(now))
-				{
-					newIDs.add(availability.getUri());
-					ids.add(availability.getUri());
-				}
-
-				if (newIDs.size() >= limit)
-				{
-					break;
-				}
+				newIDs.add(availability.getUri());
 			}
-		}
 
-		if (!newIDs.isEmpty())
-		{
-			result.put("new", newIDs);
-		}
-
-		logger.info("Results = " + ids.size());
-
-		List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
-				.filter("interactions !=", 0)
-				.order("-interactions")
-				.list();
-
-		List<String> popularIDs = new ArrayList<>();
-		for (ExperienceInteraction interaction : interactions)
-		{
-			if (interaction.getInteractions() > 0 && !ids.contains(interaction.getUri()))
-			{
-				availabilities = DataStore.load()
-						.type(ExperienceAvailability.class)
-						.filter("uri", interaction.getUri())
-						.list();
-				if (availabilities.isEmpty())
-				{
-					ids.add(interaction.getUri());
-					popularIDs.add(interaction.getUri());
-				}
-				else
-				{
-					for (ExperienceAvailability availability : availabilities)
-					{
-						if (availability.isActive(now))
-						{
-							ids.add(interaction.getUri());
-							popularIDs.add(interaction.getUri());
-							break;
-						}
-					}
-				}
-			}
-			if (popularIDs.size() >= limit)
+			if (newIDs.size() >= limit)
 			{
 				break;
 			}
 		}
 
-		if (!popularIDs.isEmpty())
-		{
-			result.put("popular", popularIDs);
-		}
+		return newIDs;
+	}
 
+	@Override
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	{
+		final Result result = new Result(limit);
+		result.add("nearby", getNearbyExperiences(getLocation(req)));
+		result.add("featured", getFeaturedExperiences());
+		result.add("popular", getPopularExperiences());
 		resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
-		writeJSON(resp, result);
+		result.write(resp);
 	}
 }

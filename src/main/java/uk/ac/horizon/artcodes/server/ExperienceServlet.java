@@ -23,6 +23,7 @@ import com.google.appengine.api.users.User;
 import com.googlecode.objectify.VoidWork;
 
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
+import uk.ac.horizon.aestheticodes.model.ExperienceCache;
 import uk.ac.horizon.aestheticodes.model.ExperienceDeleted;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
@@ -35,6 +36,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -59,6 +61,15 @@ public class ExperienceServlet extends ArtcodeServlet
 					.filter("uri", entry.getPublicID())
 					.list();
 
+			final List<ExperienceCache> toDelete = new ArrayList<>();
+			final List<ExperienceCache> caches = DataStore.load().type(ExperienceCache.class).list();
+			for(ExperienceCache cache: caches)
+			{
+				if(cache.getExperiences().contains(entry.getPublicID()))
+				{
+					toDelete.add(cache);
+				}
+			}
 			final ExperienceInteraction interaction = DataStore.load().type(ExperienceInteraction.class).id(entry.getPublicID()).now();
 
 			final ExperienceDeleted deleted = new ExperienceDeleted(entry);
@@ -76,6 +87,7 @@ public class ExperienceServlet extends ArtcodeServlet
 					}
 					DataStore.get().delete().type(ExperienceEntry.class).id(experienceID);
 					DataStore.get().delete().entities(existingAvails);
+					DataStore.get().delete().entities(toDelete);
 					DataStore.get().save().entity(deleted);
 				}
 			});
@@ -130,6 +142,8 @@ public class ExperienceServlet extends ArtcodeServlet
 			final ExperienceItems items = ExperienceItems.create(experienceID, request.getReader());
 			items.getEntry().setAuthorID(user.getUserId());
 			items.save();
+
+			logger.info("Created experience " + items.getEntry().getPublicID());
 
 			writeExperience(response, items.getEntry());
 		}

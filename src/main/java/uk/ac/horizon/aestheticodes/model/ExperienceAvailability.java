@@ -96,6 +96,11 @@ public class ExperienceAvailability
 		this.lon = lon;
 	}
 
+	public boolean isActive()
+	{
+		return isActive(System.currentTimeMillis());
+	}
+
 	public boolean isActive(long now)
 	{
 		return start <= now && end >= now;

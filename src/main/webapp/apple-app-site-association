@@ -7,6 +7,12 @@
         "paths": [
           "/experience/*"
         ]
+      },
+      {
+        "appID": "GLPSMZ875K.uk.ac.horizon.artcodes.xmas",
+        "paths": [
+          "/experience/*"
+        ]
       }
     ]
   }

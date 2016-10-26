@@ -30,9 +30,6 @@ public class ExperienceInteraction
 	private String uri;
 
 	@Index
-	private boolean featured;
-
-	@Index
 	private int interactions;
 
 	public ExperienceInteraction()
@@ -52,16 +49,6 @@ public class ExperienceInteraction
 	public void increment()
 	{
 		interactions++;
-	}
-
-	public boolean isFeatured()
-	{
-		return featured;
-	}
-
-	public void setFeatured(boolean featured)
-	{
-		this.featured = featured;
 	}
 
 	public void setInteractions(int interactions)

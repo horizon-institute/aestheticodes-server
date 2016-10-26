@@ -28,7 +28,7 @@
 	</system-properties>
 
 	<static-files>
-		<include path="/experiences/**.*" />
 		<include path="/images/**.*" />
+        <include path="/.well-known/**" />
 	</static-files>
 </appengine-web-app>
