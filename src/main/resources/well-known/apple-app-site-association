@@ -1,0 +1,19 @@
+{
+	"applinks": {
+		"apps": [],
+		"details": [
+			{
+				"appID": "GLPSMZ875K.uk.ac.horizon.artcodes.xmas",
+				"paths": [
+					"/christmas/*"
+				]
+			},
+			{
+				"appID": "GLPSMZ875K.uk.ac.horizon.aestheticodes",
+				"paths": [
+					"/experience/*"
+				]
+			}
+		]
+	}
+}

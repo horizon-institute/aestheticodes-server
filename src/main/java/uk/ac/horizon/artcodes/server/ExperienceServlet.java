@@ -19,12 +19,29 @@
 
 package uk.ac.horizon.artcodes.server;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import com.google.appengine.api.users.User;
+import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.googlecode.objectify.VoidWork;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceCache;
 import uk.ac.horizon.aestheticodes.model.ExperienceDeleted;
+import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
@@ -32,18 +49,16 @@ import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.ExperienceItems;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Logger;
-
 public class ExperienceServlet extends ArtcodeServlet
 {
 	private static final Logger logger = Logger.getLogger(ExperienceServlet.class.getSimpleName());
+	private final Mustache mustache;
+
+	public ExperienceServlet() {
+		final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+		mustache = mustacheFactory.compile("experience.mustache");
+	}
+
 
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -63,9 +78,9 @@ public class ExperienceServlet extends ArtcodeServlet
 
 			final List<ExperienceCache> toDelete = new ArrayList<>();
 			final List<ExperienceCache> caches = DataStore.load().type(ExperienceCache.class).list();
-			for(ExperienceCache cache: caches)
+			for (ExperienceCache cache : caches)
 			{
-				if(cache.getExperiences().contains(entry.getPublicID()))
+				if (cache.getExperiences().contains(entry.getPublicID()))
 				{
 					toDelete.add(cache);
 				}
@@ -81,7 +96,7 @@ public class ExperienceServlet extends ArtcodeServlet
 				@Override
 				public void vrun()
 				{
-					if(interaction != null)
+					if (interaction != null)
 					{
 						DataStore.get().delete().entity(interaction);
 					}
@@ -111,13 +126,32 @@ public class ExperienceServlet extends ArtcodeServlet
 			final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
 			if (entry != null)
 			{
-				if (request.getHeader("If-None-Match") != null && request.getHeader("If-None-Match").equals(entry.getEtag()))
+				final String userAgent = request.getHeader("User-Agent").toLowerCase();
+				if (userAgent.startsWith("artcodes/") || "json".equals(request.getParameter("format")))
 				{
-					throw new HTTPException(HttpServletResponse.SC_NOT_MODIFIED, "No Change");
+					if (request.getHeader("If-None-Match") != null && request.getHeader("If-None-Match").equals(entry.getEtag()))
+					{
+						throw new HTTPException(HttpServletResponse.SC_NOT_MODIFIED, "No Change");
+					}
+					else
+					{
+						writeExperience(response, entry);
+					}
 				}
 				else
 				{
-					writeExperience(response, entry);
+					final ExperienceDetails experience = new Gson().fromJson(entry.getJson(), ExperienceDetails.class);
+					final Map<String, String> variables = new HashMap<>();
+					variables.put("title", experience.getName());
+					variables.put("description", experience.getDescription());
+					variables.put("author", experience.getAuthor());
+					variables.put("image", experience.getImage());
+					variables.put("icon", experience.getIcon());
+
+					response.setCharacterEncoding("UTF-8");
+					response.setContentType("text/html");
+					writeExperienceCacheHeaders(response, entry);
+					mustache.execute(response.getWriter(), variables).flush();
 				}
 			}
 			else
@@ -198,7 +232,7 @@ public class ExperienceServlet extends ArtcodeServlet
 			throw new HTTPException(HttpServletResponse.SC_NOT_FOUND, "Not found");
 		}
 
-		if(!canEdit(wrapper, user))
+		if (!canEdit(wrapper, user))
 		{
 			throw new HTTPException(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
 		}
