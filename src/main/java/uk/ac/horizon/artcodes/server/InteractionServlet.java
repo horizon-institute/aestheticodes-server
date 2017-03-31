@@ -40,15 +40,14 @@ public class InteractionServlet extends ArtcodeServlet
 		try
 		{
 			verifyApp(request);
-			String experienceID = request.getParameter("experience");
+			final String experienceID = request.getParameter("experience");
 
 			logger.info(experienceID);
 
 			ExperienceInteraction interaction = DataStore.load().type(ExperienceInteraction.class).id(experienceID).now();
 			if (interaction == null)
 			{
-				interaction = new ExperienceInteraction();
-				interaction.setUri(experienceID);
+				interaction = new ExperienceInteraction(experienceID);
 			}
 
 			interaction.increment();

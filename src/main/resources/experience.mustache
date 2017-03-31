@@ -25,92 +25,87 @@
     <meta property="og:description" content="{{description}}"/>
     <meta property="og:site_name" content="Artcodes"/>
     <style>
-		body {
-		margin: 0px;
-		font-family: sans-serif;
-		display: -webkit-box;
-		display: -webkit-flex;
-		display: flex;
-		-webkit-box-align: start;
-		-webkit-align-items: flex-start;
-		align-items: flex-start;
-		}
+        body {
+            margin: 0px;
+            font-family: sans-serif;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: start;
+            -webkit-align-items: flex-start;
+            align-items: flex-start;
+        }
 
-		.icon {
-		max-height: 32px;
-		max-width: 32px;
-		margin-right: 16px;
-		}
+        .icon {
+            max-height: 32px;
+            max-width: 32px;
+            margin-right: 16px;
+        }
 
-		.title {
-		font-size: 150%;
-		font-weight: bold;
-		-webkit-box-flex: 1;
-		-webkit-flex: 1;
-		flex: 1;
-		}
+        .title {
+            font-size: 150%;
+            font-weight: bold;
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+        }
 
-		.content {
-		-webkit-box-flex: 1;
-		-webkit-flex: 1;
-		flex: 1;
-		margin: 16px;
-		}
+        .content {
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            margin: 16px;
+        }
 
-		.desc {
-		text-align: justify;
-		margin-top: 16px;
-		margin-bottom: 16px;
-		white-space: pre-wrap;
-		}
+        .desc {
+            text-align: justify;
+            margin-top: 16px;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+        }
 
-		.apps {
-		display: -webkit-box;
-		display: -webkit-flex;
-		display: flex;
-		-webkit-box-align: center;
-		-webkit-align-items: center;
-		align-items: center;
-		-webkit-justify-content: center;
-		justify-content: center;
-		}
+        .apps {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+        }
 
-		.app {
-		margin: 20px;
-		}
+        .app {
+            margin: 20px;
+        }
 
-		.button {
-		text-decoration: none;
-		padding: 10px 20px;
-		background: #336;
-		border-radius: 4px;
-		color: #FFF;
-		margin-top: 16px;
-		}
+        .button {
+            text-decoration: none;
+            padding: 10px 20px;
+            background: #336;
+            border-radius: 4px;
+            color: #FFF;
+            margin-top: 16px;
+        }
 
-		@media screen and (orientation:portrait) {
-			body {
-				display: block;
-			}
+        @media screen and (orientation: portrait) {
+            body {
+                display: block;
+            }
 
-			.image {
-				width: 100%;
-			}
-		}
-
-
-
+            .image {
+                width: 100%;
+            }
+        }
     </style>
     <script language="javascript">
-		window.onload = function(e) {
-			if(/Android/i.test(navigator.userAgent))
-			{
-				document.getElementById('apapp').style.display = 'none';
-			}
-			else if(/iPhone|iPad|iPod/i.test(navigator.userAgent))
-			{
-				document.getElementById('goapp').style.display = 'none';
-			}
+        window.onload = function (e) {
+            if (/Android/i.test(navigator.userAgent)) {
+                document.getElementById('apapp').style.display = 'none';
+            }
+            else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                document.getElementById('goapp').style.display = 'none';
+            }
         };
     </script>
 </head>

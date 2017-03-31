@@ -22,16 +22,12 @@ package uk.ac.horizon.artcodes.server;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
-import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
-import com.google.appengine.tools.cloudstorage.GcsFileOptions;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.cloudstorage.RetryParams;
+import com.google.appengine.tools.cloudstorage.*;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
 import com.google.common.io.ByteStreams;
+import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
+import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,30 +36,9 @@ import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 
-import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
-import uk.ac.horizon.artcodes.server.utils.HTTPException;
-
 public class ImageServlet extends ArtcodeServlet
 {
 	private static final int image_size = 512 * 1024;
-
-	@Override
-	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws IOException
-	{
-		final String id = getImageID(req);
-		final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-		final GcsFilename filename = new GcsFilename(req.getServerName(), id);
-		final GcsFileMetadata metadata = gcsService.getMetadata(filename);
-		if (metadata == null)
-		{
-			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		}
-		else
-		{
-			resp.setStatus(HttpServletResponse.SC_OK);
-		}
-	}
-
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
@@ -82,12 +57,6 @@ public class ImageServlet extends ArtcodeServlet
 			resp.addHeader("Cache-Control", "max-age=31556926");
 			blobstoreService.serve(blobKey, resp);
 		}
-	}
-
-	private String getImageID(HttpServletRequest req)
-	{
-		String url = req.getRequestURL().toString();
-		return url.substring(url.lastIndexOf("/") + 1);
 	}
 
 	@Override
@@ -140,5 +109,28 @@ public class ImageServlet extends ArtcodeServlet
 		{
 			e.writeTo(response);
 		}
+	}
+
+	@Override
+	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	{
+		final String id = getImageID(req);
+		final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
+		final GcsFilename filename = new GcsFilename(req.getServerName(), id);
+		final GcsFileMetadata metadata = gcsService.getMetadata(filename);
+		if (metadata == null)
+		{
+			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
+		else
+		{
+			resp.setStatus(HttpServletResponse.SC_OK);
+		}
+	}
+
+	private String getImageID(HttpServletRequest req)
+	{
+		String url = req.getRequestURL().toString();
+		return url.substring(url.lastIndexOf("/") + 1);
 	}
 }

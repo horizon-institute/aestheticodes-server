@@ -23,18 +23,17 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.appengine.repackaged.com.google.gson.Gson;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
+import uk.ac.horizon.artcodes.server.utils.HTTPException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ExperiencePageServlet extends ArtcodeServlet
 {
@@ -47,28 +46,35 @@ public class ExperiencePageServlet extends ArtcodeServlet
 	}
 
 	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
-		final String experienceID = getExperienceID(req);
-		final Map<String, String> variables = new HashMap<>();
-		final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
-		if (entry != null)
+		try
 		{
-			final ExperienceDetails experience = new Gson().fromJson(entry.getJson(), ExperienceDetails.class);
-			variables.put("id", entry.getId());
-			variables.put("title", experience.getName());
-			variables.put("description", experience.getDescription());
-			variables.put("author", experience.getAuthor());
-			variables.put("image", experience.getImage());
-			variables.put("icon", experience.getIcon());
+			final String experienceID = getExperienceID(request);
+			final Map<String, String> variables = new HashMap<>();
+			final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
+			if (entry != null)
+			{
+				final ExperienceDetails experience = new Gson().fromJson(entry.getJson(), ExperienceDetails.class);
+				variables.put("id", entry.getId());
+				variables.put("title", experience.getName());
+				variables.put("description", experience.getDescription());
+				variables.put("author", experience.getAuthor());
+				variables.put("image", experience.getImage());
+				variables.put("icon", experience.getIcon());
 
-			resp.setContentType("text/html");
-			writeExperienceCacheHeaders(resp, entry);
-			mustache.execute(resp.getWriter(), variables).flush();
+				response.setContentType("text/html");
+				writeExperienceCacheHeaders(response, entry);
+				mustache.execute(response.getWriter(), variables).flush();
+			}
+			else
+			{
+				throw new HTTPException(HttpServletResponse.SC_NOT_FOUND, "Not found");
+			}
 		}
-		else
+		catch (HTTPException e)
 		{
-			// TODO Write not found exception
+			e.writeTo(response);
 		}
 	}
 }

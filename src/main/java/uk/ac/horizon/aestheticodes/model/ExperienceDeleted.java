@@ -26,6 +26,7 @@ import com.googlecode.objectify.annotation.Index;
 import java.util.Date;
 
 @Entity
+@SuppressWarnings("unused")
 public class ExperienceDeleted
 {
 	@Id
@@ -38,10 +39,7 @@ public class ExperienceDeleted
 
 	private Date deleted;
 
-	public ExperienceDeleted()
-	{
-
-	}
+	public ExperienceDeleted() {}
 
 	public ExperienceDeleted(ExperienceEntry entry)
 	{

@@ -19,26 +19,18 @@
 
 package uk.ac.horizon.artcodes.server;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceCache;
 import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RecommendedServlet extends ArtcodeServlet
 {
@@ -111,8 +103,18 @@ public class RecommendedServlet extends ArtcodeServlet
 
 	private static final int limit = 6;
 	private static final int nearbyDistance = 100;
-	private static final long recent = 86400000;
 	private static final Logger logger = Logger.getLogger(RecommendedServlet.class.getSimpleName());
+
+	@Override
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	{
+		final Result result = new Result(limit);
+		result.add("nearby", getNearbyExperiences(getLocation(req)));
+		result.add("featured", getFeaturedExperiences());
+		result.add("popular", getPopularExperiences());
+		resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
+		result.write(resp);
+	}
 
 	private LatLng getLocation(HttpServletRequest req)
 	{
@@ -250,49 +252,5 @@ public class RecommendedServlet extends ArtcodeServlet
 		ExperienceCache popularCache = new ExperienceCache("popular", popularIDs);
 		DataStore.save().entity(popularCache);
 		return popularIDs;
-	}
-
-	private List<String> getNewExperiences()
-	{
-		final ExperienceCache cache = DataStore.load().type(ExperienceCache.class).id("new").now();
-		if (cache != null)
-		{
-			// TODO Check cache hasn't timed out
-			return cache.getExperiences();
-		}
-		Long now = System.currentTimeMillis();
-		List<ExperienceAvailability> availabilities = DataStore.load().type(ExperienceAvailability.class)
-				.filter("start <", now)
-				.filter("start >", now - recent)
-				.order("-start")
-				.list();
-
-		List<String> newIDs = new ArrayList<>();
-		for (ExperienceAvailability availability : availabilities)
-		{
-			if (availability.getLon() == null && availability.getLat() == null &&
-					availability.isActive(now))
-			{
-				newIDs.add(availability.getUri());
-			}
-
-			if (newIDs.size() >= limit)
-			{
-				break;
-			}
-		}
-
-		return newIDs;
-	}
-
-	@Override
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
-	{
-		final Result result = new Result(limit);
-		result.add("nearby", getNearbyExperiences(getLocation(req)));
-		result.add("featured", getFeaturedExperiences());
-		result.add("popular", getPopularExperiences());
-		resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
-		result.write(resp);
 	}
 }

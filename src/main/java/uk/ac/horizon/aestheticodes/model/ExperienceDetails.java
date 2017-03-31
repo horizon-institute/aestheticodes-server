@@ -34,9 +34,7 @@ public class ExperienceDetails
 	private String description;
 	private String author;
 
-	public ExperienceDetails()
-	{
-	}
+	public ExperienceDetails() {}
 
 	public List<ExperienceAvailability> getAvailabilities()
 	{
@@ -48,19 +46,9 @@ public class ExperienceDetails
 		return description;
 	}
 
-	public void setDescription(String description)
-	{
-		this.description = description;
-	}
-
 	public String getIcon()
 	{
 		return icon;
-	}
-
-	public void setIcon(String icon)
-	{
-		this.icon = icon;
 	}
 
 	public String getId()
@@ -83,18 +71,8 @@ public class ExperienceDetails
 		return image;
 	}
 
-	public void setImage(String image)
-	{
-		this.image = image;
-	}
-
 	public String getName()
 	{
 		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
 	}
 }

@@ -1,4 +1,4 @@
-package uk.ac.horizon.artcodes.server;/*
+/*
  * Artcodes recognises a different marker scheme that allows the
  * creation of aesthetically pleasing, even beautiful, codes.
  * Copyright (C) 2013-2015  The University of Nottingham
@@ -17,25 +17,20 @@ package uk.ac.horizon.artcodes.server;/*
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+package uk.ac.horizon.artcodes.server;
+
 import com.google.appengine.repackaged.com.google.api.client.util.IOUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class WellKnownServlet extends ArtcodeServlet
 {
-	private Logger logger = Logger.getLogger(WellKnownServlet.class.getSimpleName());
-
-	public WellKnownServlet()
-	{
-	}
+	public WellKnownServlet() {}
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws IOException
@@ -43,13 +38,15 @@ public class WellKnownServlet extends ArtcodeServlet
 		final int index = req.getRequestURL().indexOf(".well-known/");
 		final String filepath = "/" + req.getRequestURL().substring(index + 1);
 		InputStream inputStream = WellKnownServlet.class.getResourceAsStream(filepath);
-		if(inputStream != null) {
+		if (inputStream != null)
+		{
 			// TODO Be more intelligent here
 			response.setContentType("application/json");
 			response.setCharacterEncoding("utf-8");
 			IOUtils.copy(inputStream, response.getOutputStream());
 		}
-		else {
+		else
+		{
 			new HTTPException(404, "File not found").writeTo(response);
 		}
 	}

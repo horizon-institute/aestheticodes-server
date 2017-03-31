@@ -19,32 +19,22 @@
 
 package uk.ac.horizon.artcodes.server;
 
-import com.google.appengine.api.search.Index;
-import com.google.appengine.api.search.IndexSpec;
-import com.google.appengine.api.search.MatchScorer;
-import com.google.appengine.api.search.Query;
-import com.google.appengine.api.search.QueryOptions;
-import com.google.appengine.api.search.Results;
-import com.google.appengine.api.search.ScoredDocument;
-import com.google.appengine.api.search.SearchServiceFactory;
-import com.google.appengine.api.search.SortOptions;
+import com.google.appengine.api.search.*;
 import com.google.appengine.api.users.User;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.ExperienceItems;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 public class SearchServlet extends ArtcodeServlet
 {
@@ -60,10 +50,10 @@ public class SearchServlet extends ArtcodeServlet
 	{
 		try
 		{
-			String index = request.getParameter("index");
+			final String index = request.getParameter("index");
 			if (index != null && index.equals("true"))
 			{
-				User user = getUser(request);
+				final User user = getUser(request);
 				if (isAdmin(user))
 				{
 					final List<ExperienceAvailability> availabilities = DataStore.load()
@@ -74,11 +64,11 @@ public class SearchServlet extends ArtcodeServlet
 					final List<ExperienceEntry> entries = new ArrayList<>();
 					for (ExperienceAvailability availability : availabilities)
 					{
-						if(!ids.contains(availability.getUri()))
+						if (!ids.contains(availability.getUri()))
 						{
 							ids.add(availability.getUri());
 							ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(getEntryID(availability.getUri())).now();
-							if(entry != null)
+							if (entry != null)
 							{
 								entries.add(entry);
 							}
@@ -98,9 +88,9 @@ public class SearchServlet extends ArtcodeServlet
 									.build()))
 					.build(request.getParameter("q"));
 
-			Results<ScoredDocument> results = getIndex().search(query);
+			final Results<ScoredDocument> results = getIndex().search(query);
 
-			List<String> ids = new ArrayList<>();
+			final List<String> ids = new ArrayList<>();
 			for (ScoredDocument result : results)
 			{
 				ids.add(result.getId());

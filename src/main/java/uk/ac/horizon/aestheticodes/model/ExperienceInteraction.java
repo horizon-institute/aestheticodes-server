@@ -20,8 +20,8 @@
 package uk.ac.horizon.aestheticodes.model;
 
 import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 
 @Entity
 public class ExperienceInteraction
@@ -32,8 +32,12 @@ public class ExperienceInteraction
 	@Index
 	private int interactions;
 
-	public ExperienceInteraction()
+	@SuppressWarnings("unused")
+	public ExperienceInteraction() {}
+
+	public ExperienceInteraction(String uri)
 	{
+		this.uri = uri;
 	}
 
 	public int getInteractions()
@@ -49,15 +53,5 @@ public class ExperienceInteraction
 	public void increment()
 	{
 		interactions++;
-	}
-
-	public void setInteractions(int interactions)
-	{
-		this.interactions = interactions;
-	}
-
-	public void setUri(String uri)
-	{
-		this.uri = uri;
 	}
 }

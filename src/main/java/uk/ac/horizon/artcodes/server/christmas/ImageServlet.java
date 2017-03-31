@@ -19,37 +19,23 @@
 
 package uk.ac.horizon.artcodes.server.christmas;
 
-import com.google.appengine.tools.cloudstorage.GcsFileMetadata;
-import com.google.appengine.tools.cloudstorage.GcsFileOptions;
-import com.google.appengine.tools.cloudstorage.GcsFilename;
-import com.google.appengine.tools.cloudstorage.GcsOutputChannel;
-import com.google.appengine.tools.cloudstorage.GcsService;
-import com.google.appengine.tools.cloudstorage.GcsServiceFactory;
-import com.google.appengine.tools.cloudstorage.RetryParams;
+import com.google.appengine.tools.cloudstorage.*;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
 import com.google.common.io.ByteStreams;
+import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
+import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
-import uk.ac.horizon.artcodes.server.utils.HTTPException;
-
 public class ImageServlet extends ArtcodeServlet
 {
 	private static final int image_size = 512 * 1024;
-
-	private String getImageID(HttpServletRequest req)
-	{
-		String url = req.getRequestURL().toString();
-		return url.substring(url.lastIndexOf("/") + 1);
-	}
 
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException
@@ -107,5 +93,11 @@ public class ImageServlet extends ArtcodeServlet
 		{
 			e.writeTo(response);
 		}
+	}
+
+	private String getImageID(HttpServletRequest req)
+	{
+		String url = req.getRequestURL().toString();
+		return url.substring(url.lastIndexOf("/") + 1);
 	}
 }

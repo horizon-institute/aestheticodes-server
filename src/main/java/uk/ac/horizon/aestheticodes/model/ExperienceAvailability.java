@@ -19,13 +19,13 @@
 
 package uk.ac.horizon.aestheticodes.model;
 
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 
-import java.util.logging.Logger;
-
 @Entity
+@Cache
 public class ExperienceAvailability
 {
 	@Id
@@ -46,65 +46,7 @@ public class ExperienceAvailability
 	@Index
 	private String uri;
 
-	public ExperienceAvailability()
-	{
-
-	}
-
-	public long getEnd()
-	{
-		return end;
-	}
-
-	public Double getLat()
-	{
-		return lat;
-	}
-
-	public Double getLon()
-	{
-		return lon;
-	}
-
-	public String getUri()
-	{
-		return uri;
-	}
-
-	public void setEnd(long end)
-	{
-		this.end = end;
-	}
-
-	public long getStart()
-	{
-		return start;
-	}
-
-	public void setStart(long start)
-	{
-		this.start = start;
-	}
-
-	public void setLat(double lat)
-	{
-		this.lat = lat;
-	}
-
-	public void setLon(double lon)
-	{
-		this.lon = lon;
-	}
-
-	public boolean isActive()
-	{
-		return isActive(System.currentTimeMillis());
-	}
-
-	public boolean isActive(long now)
-	{
-		return start <= now && end >= now;
-	}
+	public ExperienceAvailability() {}
 
 	// in miles
 	private static double distance(double lat1, double lon1, double lat2, double lon2)
@@ -127,13 +69,68 @@ public class ExperienceAvailability
 		return (rad * 180 / Math.PI);
 	}
 
-	public double getMilesFrom(double lat, double lon)
+	public long getEnd()
 	{
-		return distance(this.lat, this.lon, lat, lon);
+		return end;
+	}
+
+	public void setEnd(long end)
+	{
+		this.end = end;
+	}
+
+	public Double getLat()
+	{
+		return lat;
+	}
+
+	public void setLat(double lat)
+	{
+		this.lat = lat;
+	}
+
+	public Double getLon()
+	{
+		return lon;
+	}
+
+	public void setLon(double lon)
+	{
+		this.lon = lon;
+	}
+
+	public String getUri()
+	{
+		return uri;
 	}
 
 	public void setUri(String uri)
 	{
 		this.uri = uri;
+	}
+
+	public long getStart()
+	{
+		return start;
+	}
+
+	public void setStart(long start)
+	{
+		this.start = start;
+	}
+
+	public boolean isActive()
+	{
+		return isActive(System.currentTimeMillis());
+	}
+
+	public boolean isActive(long now)
+	{
+		return start <= now && end >= now;
+	}
+
+	public double getMilesFrom(double lat, double lon)
+	{
+		return distance(this.lat, this.lon, lat, lon);
 	}
 }

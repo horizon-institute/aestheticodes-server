@@ -21,19 +21,17 @@ package uk.ac.horizon.artcodes.server;
 
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.VoidWork;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 public class ExperiencesServlet extends ArtcodeServlet
 {
@@ -44,7 +42,7 @@ public class ExperiencesServlet extends ArtcodeServlet
 	{
 		try
 		{
-			User user = getUser(request);
+			final User user = getUser(request);
 			verifyUser(user);
 
 			final Collection<String> list = new HashSet<>();

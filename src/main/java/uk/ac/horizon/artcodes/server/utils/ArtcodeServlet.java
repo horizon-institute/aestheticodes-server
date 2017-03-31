@@ -25,19 +25,17 @@ import com.google.appengine.api.oauth.OAuthServiceFactory;
 import com.google.appengine.api.users.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 
 public abstract class ArtcodeServlet extends HttpServlet
 {
@@ -105,7 +103,7 @@ public abstract class ArtcodeServlet extends HttpServlet
 
 	protected static void writeJSON(HttpServletResponse resp, Object item) throws IOException
 	{
-		String json = gson.toJson(item);
+		final String json = gson.toJson(item);
 		resp.setContentType("application/json");
 		resp.setCharacterEncoding("UTF-8");
 		resp.getWriter().write(json);
@@ -113,7 +111,7 @@ public abstract class ArtcodeServlet extends HttpServlet
 
 	protected static String getExperienceID(HttpServletRequest req)
 	{
-		String url = req.getRequestURL().toString();
+		final String url = req.getRequestURL().toString();
 		return getEntryID(url);
 	}
 

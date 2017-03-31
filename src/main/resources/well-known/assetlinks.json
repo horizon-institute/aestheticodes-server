@@ -1,17 +1,26 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "uk.ac.horizon.aestheticodes",
-    "sha256_cert_fingerprints":
-    ["F3:01:56:59:38:91:72:86:FB:A0:D1:A0:59:A1:C8:AC:42:8D:F8:9E:84:31:18:F4:12:8E:8D:4F:CB:95:D4:86"]
-  }
-},{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "uk.ac.horizon.artcodes.xmas",
-    "sha256_cert_fingerprints":
-    ["F3:01:56:59:38:91:72:86:FB:A0:D1:A0:59:A1:C8:AC:42:8D:F8:9E:84:31:18:F4:12:8E:8D:4F:CB:95:D4:86"]
-  }
-}]
+[
+	{
+		"relation": [
+			"delegate_permission/common.handle_all_urls"
+		],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "uk.ac.horizon.aestheticodes",
+			"sha256_cert_fingerprints": [
+				"F3:01:56:59:38:91:72:86:FB:A0:D1:A0:59:A1:C8:AC:42:8D:F8:9E:84:31:18:F4:12:8E:8D:4F:CB:95:D4:86"
+			]
+		}
+	},
+	{
+		"relation": [
+			"delegate_permission/common.handle_all_urls"
+		],
+		"target": {
+			"namespace": "android_app",
+			"package_name": "uk.ac.horizon.artcodes.xmas",
+			"sha256_cert_fingerprints": [
+				"F3:01:56:59:38:91:72:86:FB:A0:D1:A0:59:A1:C8:AC:42:8D:F8:9E:84:31:18:F4:12:8E:8D:4F:CB:95:D4:86"
+			]
+		}
+	}
+]

@@ -22,11 +22,7 @@ package uk.ac.horizon.artcodes.server.utils;
 import com.google.appengine.api.search.Document;
 import com.google.appengine.api.search.Field;
 import com.google.common.hash.Hashing;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.googlecode.objectify.VoidWork;
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceCache;
@@ -37,11 +33,7 @@ import uk.ac.horizon.artcodes.server.SearchServlet;
 import javax.servlet.http.HttpServletResponse;
 import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,14 +41,56 @@ public class ExperienceItems
 {
 	private static final Logger logger = Logger.getLogger(ExperienceItems.class.getName());
 	private static final Gson gson = new GsonBuilder().create();
-	private ExperienceEntry entry;
-	private List<ExperienceAvailability> availabilities = new ArrayList<>();
+	private final ExperienceEntry entry;
+	private final List<ExperienceAvailability> availabilities = new ArrayList<>();
+
+	private ExperienceItems(ExperienceEntry entry)
+	{
+		this.entry = entry;
+	}
 
 	public static ExperienceItems create(String experienceID, Reader experienceReader) throws HTTPException
 	{
 		final JsonElement element = gson.fromJson(experienceReader, JsonElement.class);
 
 		return create(element, experienceID);
+	}
+
+	public static void index(Collection<ExperienceEntry> entries)
+	{
+		try
+		{
+			final List<Document> documents = new ArrayList<>();
+			for (ExperienceEntry entry : entries)
+			{
+				try
+				{
+					final ExperienceDetails details = gson.fromJson(entry.getJson(), ExperienceDetails.class);
+
+					final Document.Builder doc = Document.newBuilder()
+							.setId(entry.getPublicID())
+							.addField(Field.newBuilder().setName("title").setText(details.getName()))
+							.addField(Field.newBuilder().setName("content").setText(details.getDescription()))
+							.addField(Field.newBuilder().setName("author").setText(details.getAuthor()));
+					if (entry.getModified() != null)
+					{
+						doc.addField(Field.newBuilder().setName("modified").setDate(entry.getModified()));
+					}
+
+					documents.add(doc.build());
+				}
+				catch (Exception e)
+				{
+					logger.log(Level.WARNING, "Error adding " + entry.getId() + ": " + e.getMessage());
+				}
+			}
+
+			SearchServlet.getIndex().put(documents);
+		}
+		catch (Exception e)
+		{
+			logger.log(Level.WARNING, e.getMessage(), e);
+		}
 	}
 
 	private static JsonObject verifyExperience(JsonElement element) throws HTTPException
@@ -91,12 +125,12 @@ public class ExperienceItems
 		experienceObject.addProperty("id", fullID);
 
 		final JsonArray actionArray = experienceObject.getAsJsonArray("actions");
-		for(JsonElement actionElement: actionArray)
+		for (JsonElement actionElement : actionArray)
 		{
 			JsonObject action = actionElement.getAsJsonObject();
-			if(action != null)
+			if (action != null)
 			{
-				if(action.has("owner"))
+				if (action.has("owner"))
 				{
 					String owner = action.get("owner").getAsString();
 					if (owner != null && owner.equals("this"))
@@ -111,9 +145,7 @@ public class ExperienceItems
 		wrapper.setJson(experienceJson);
 		wrapper.setEtag(Hashing.md5().hashString(experienceJson, Charset.forName("UTF-8")).toString());
 
-		final ExperienceItems items = new ExperienceItems();
-		items.entry = wrapper;
-
+		final ExperienceItems items = new ExperienceItems(wrapper);
 		JsonArray availabilityArray = experienceObject.getAsJsonArray("availabilities");
 		if (availabilityArray != null)
 		{
@@ -137,15 +169,15 @@ public class ExperienceItems
 	{
 		final List<ExperienceCache> caches = DataStore.load().type(ExperienceCache.class).list();
 		final List<ExperienceCache> toDelete = new ArrayList<>();
-		for(ExperienceCache cache: caches)
+		for (ExperienceCache cache : caches)
 		{
-			if(cache.getExperiences().contains(entry.getPublicID()))
+			if (cache.getExperiences().contains(entry.getPublicID()))
 			{
 				toDelete.add(cache);
 			}
 		}
 
-		if(!toDelete.isEmpty())
+		if (!toDelete.isEmpty())
 		{
 			logger.info("Deleting " + toDelete.size() + " cache entries");
 			DataStore.get().delete().entities(toDelete);
@@ -187,43 +219,6 @@ public class ExperienceItems
 			{
 				SearchServlet.getIndex().delete(entry.getPublicID());
 			}
-		}
-		catch (Exception e)
-		{
-			logger.log(Level.WARNING, e.getMessage(), e);
-		}
-	}
-
-	public static void index(Collection<ExperienceEntry> entries)
-	{
-		try
-		{
-			final List<Document> documents = new ArrayList<>();
-			for(ExperienceEntry entry: entries)
-			{
-				try
-				{
-					final ExperienceDetails details = gson.fromJson(entry.getJson(), ExperienceDetails.class);
-
-					final Document.Builder doc = Document.newBuilder()
-							.setId(entry.getPublicID())
-							.addField(Field.newBuilder().setName("title").setText(details.getName()))
-							.addField(Field.newBuilder().setName("content").setText(details.getDescription()))
-							.addField(Field.newBuilder().setName("author").setText(details.getAuthor()));
-					if(entry.getModified() != null)
-					{
-						doc.addField(Field.newBuilder().setName("modified").setDate(entry.getModified()));
-					}
-
-					documents.add(doc.build());
-				}
-				catch (Exception e)
-				{
-					logger.log(Level.WARNING, "Error adding " + entry.getId() + ": " + e.getMessage());
-				}
-			}
-
-			SearchServlet.getIndex().put(documents);
 		}
 		catch (Exception e)
 		{

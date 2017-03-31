@@ -25,40 +25,29 @@ import com.github.mustachejava.MustacheFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.repackaged.com.google.gson.Gson;
 import com.googlecode.objectify.VoidWork;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
-import uk.ac.horizon.aestheticodes.model.ExperienceCache;
-import uk.ac.horizon.aestheticodes.model.ExperienceDeleted;
-import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
-import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
-import uk.ac.horizon.aestheticodes.model.ExperienceInteraction;
+import uk.ac.horizon.aestheticodes.model.*;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.ExperienceItems;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class ExperienceServlet extends ArtcodeServlet
 {
 	private static final Logger logger = Logger.getLogger(ExperienceServlet.class.getSimpleName());
 	private final Mustache mustache;
 
-	public ExperienceServlet() {
+	public ExperienceServlet()
+	{
 		final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
 		mustache = mustacheFactory.compile("experience.mustache");
 	}
-
 
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
@@ -196,7 +185,7 @@ public class ExperienceServlet extends ArtcodeServlet
 			verifyUser(user);
 			final String experienceID = getExperienceID(request);
 
-			ExperienceEntry existing = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
+			final ExperienceEntry existing = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
 			verifyUserCanEdit(existing, user);
 
 			final ExperienceItems items = ExperienceItems.create(experienceID, request.getReader());
