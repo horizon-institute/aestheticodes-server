@@ -67,13 +67,11 @@ public class RecommendedServlet extends ArtcodeServlet
 
 	private class Result
 	{
-		private final int limit;
 		private final Set<String> ids = new HashSet<>();
 		private final Map<String, List<String>> result = new HashMap<>();
 
-		private Result(int limit)
+		private Result()
 		{
-			this.limit = limit;
 		}
 
 		void add(String category, List<String> experiences)
@@ -86,11 +84,6 @@ public class RecommendedServlet extends ArtcodeServlet
 					ids.add(experience);
 					finalExperiences.add(experience);
 				}
-
-				if (finalExperiences.size() >= limit)
-				{
-					break;
-				}
 			}
 			result.put(category, finalExperiences);
 		}
@@ -101,17 +94,16 @@ public class RecommendedServlet extends ArtcodeServlet
 		}
 	}
 
-	private static final int limit = 6;
 	private static final int nearbyDistance = 100;
 	private static final Logger logger = Logger.getLogger(RecommendedServlet.class.getSimpleName());
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
-		final Result result = new Result(limit);
-		result.add("nearby", getNearbyExperiences(getLocation(req)));
+		final Result result = new Result();
+		result.add("nearby", getNearbyExperiences(getLocation(req), 4));
 		result.add("featured", getFeaturedExperiences());
-		result.add("popular", getPopularExperiences());
+		result.add("popular", getPopularExperiences(6));
 		resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
 		result.write(resp);
 	}
@@ -147,7 +139,7 @@ public class RecommendedServlet extends ArtcodeServlet
 		return Collections.emptyList();
 	}
 
-	private List<String> getNearbyExperiences(LatLng location)
+	private List<String> getNearbyExperiences(LatLng location, int count)
 	{
 		if (location != null)
 		{
@@ -196,7 +188,7 @@ public class RecommendedServlet extends ArtcodeServlet
 			for (Nearby nearbyID : nearby)
 			{
 				nearbyIDs.add(nearbyID.uri);
-				if (nearbyIDs.size() >= limit)
+				if (nearbyIDs.size() >= count)
 				{
 					break;
 				}
@@ -210,19 +202,20 @@ public class RecommendedServlet extends ArtcodeServlet
 		return Collections.emptyList();
 	}
 
-	private List<String> getPopularExperiences()
+	private List<String> getPopularExperiences(int count)
 	{
 		final ExperienceCache cache = DataStore.load().type(ExperienceCache.class).id("popular").now();
 		if (cache != null)
 		{
 			return cache.getExperiences();
 		}
-		List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
+		final List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
 				.filter("interactions !=", 0)
 				.order("-interactions")
+				.limit(count)
 				.list();
 
-		List<String> popularIDs = new ArrayList<>();
+		final List<String> popularIDs = new ArrayList<>();
 		for (ExperienceInteraction interaction : interactions)
 		{
 			if (interaction.getInteractions() > 0)
@@ -245,6 +238,9 @@ public class RecommendedServlet extends ArtcodeServlet
 							break;
 						}
 					}
+				}
+				if(popularIDs.size() >= count) {
+					break;
 				}
 			}
 		}
