@@ -19,7 +19,8 @@
 
 package uk.ac.horizon.artcodes.server;
 
-import com.google.appengine.repackaged.com.google.api.client.util.IOUtils;
+import com.google.api.client.util.IOUtils;
+
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
 

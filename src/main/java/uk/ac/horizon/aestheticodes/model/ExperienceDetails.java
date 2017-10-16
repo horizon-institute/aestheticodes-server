@@ -36,43 +36,22 @@ public class ExperienceDetails
 
 	public ExperienceDetails() {}
 
-	public List<ExperienceAvailability> getAvailabilities()
-	{
-		return availabilities;
-	}
+	public List<ExperienceAvailability> getAvailabilities() { return availabilities; }
 
-	public String getDescription()
-	{
-		return description;
-	}
+	public String getDescription() { return description; }
 
-	public String getIcon()
-	{
-		return icon;
-	}
+	public String getIcon() { return icon; }
 
-	public String getId()
-	{
-		return id;
-	}
-
-	public String getAuthor()
-	{
-		return author;
-	}
+	public String getId() { return id; }
 
 	public void setId(String id)
 	{
 		this.id = id;
 	}
 
-	public String getImage()
-	{
-		return image;
-	}
+	public String getAuthor() { return author; }
 
-	public String getName()
-	{
-		return name;
-	}
+	public String getImage() { return image; }
+
+	public String getName() { return name; }
 }

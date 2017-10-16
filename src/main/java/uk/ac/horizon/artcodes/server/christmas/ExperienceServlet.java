@@ -22,22 +22,24 @@ package uk.ac.horizon.artcodes.server.christmas;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import com.google.appengine.repackaged.com.google.gson.Gson;
+import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.ExperienceItems;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Logger;
 
 public class ExperienceServlet extends ArtcodeServlet
 {
@@ -50,6 +52,13 @@ public class ExperienceServlet extends ArtcodeServlet
 		mustache = mustacheFactory.compile("christmas.mustache");
 	}
 
+	private static ExperienceItems getExperience(String experienceID, HttpServletRequest request) throws IOException
+	{
+		final ExperienceItems items = ExperienceItems.create(experienceID, request.getReader());
+		items.getEntry().setAuthorID("chrimbocodes@gmail.com");
+		items.getEntry().setJson(items.getEntry().getJson().replace("http://aestheticodes.appspot.com/experience/", "http://aestheticodes.appspot.com/christmas/"));
+		return items;
+	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
@@ -101,6 +110,42 @@ public class ExperienceServlet extends ArtcodeServlet
 		}
 	}
 
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	{
+		try
+		{
+			verifyApp(request);
+			String experienceID = getExperienceID(request);
+
+			logger.info(experienceID);
+
+			final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
+			if (entry != null)
+			{
+				final String editToken = request.getHeader("Edit-Token");
+				if (editToken == null || !editToken.equals(entry.getEditToken()))
+				{
+					throw new HTTPException(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+				}
+
+				final ExperienceItems items = getExperience(experienceID, request);
+				items.save();
+
+				logger.info("Updated experience " + items.getEntry().getPublicID());
+
+				writeExperience(response, items.getEntry());
+			}
+			else
+			{
+				throw new HTTPException(HttpServletResponse.SC_NOT_FOUND, "Not found");
+			}
+		}
+		catch (HTTPException e)
+		{
+			e.writeTo(response);
+		}
+	}
+
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
@@ -108,13 +153,13 @@ public class ExperienceServlet extends ArtcodeServlet
 		{
 			verifyApp(request);
 			final String experienceID = UUID.randomUUID().toString();
-			final ExperienceItems items = ExperienceItems.create(experienceID, request.getReader());
-			items.getEntry().setAuthorID("chrimbocodes@gmail.com");
-			items.getEntry().setJson(items.getEntry().getJson().replace("http://aestheticodes.appspot.com/experience/", "http://aestheticodes.appspot.com/christmas/"));
+			final ExperienceItems items = getExperience(experienceID, request);
+			items.getEntry().setEditToken(UUID.randomUUID().toString());
 			items.save();
 
 			logger.info("Created experience " + items.getEntry().getPublicID());
 
+			response.addHeader("Edit-Token", items.getEntry().getEditToken());
 			writeExperience(response, items.getEntry());
 		}
 		catch (HTTPException e)

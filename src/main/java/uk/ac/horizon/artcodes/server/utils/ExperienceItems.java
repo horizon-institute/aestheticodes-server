@@ -106,7 +106,7 @@ public class ExperienceItems
 		return jsonObject;
 	}
 
-	private static ExperienceItems create(JsonElement element, String experienceID) throws HTTPException
+	public static ExperienceItems create(JsonElement element, String experienceID) throws HTTPException
 	{
 		final ExperienceEntry wrapper = gson.fromJson(element, ExperienceEntry.class);
 		wrapper.setCreated(new Date());

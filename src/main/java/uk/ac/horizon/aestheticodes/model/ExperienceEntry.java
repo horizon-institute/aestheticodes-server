@@ -44,25 +44,17 @@ public class ExperienceEntry
 
 	private Date modified;
 
-	public Date getModified()
-	{
-		return modified;
-	}
+	private String editToken;
 
-	public String getPublicID()
-	{
-		return "http://aestheticodes.appspot.com/experience/" + id;
-	}
+	public Date getModified() { return modified; }
 
-	public String getAuthorID()
-	{
-		return authorID;
-	}
+	public String getPublicID() { return "http://aestheticodes.appspot.com/experience/" + id; }
 
-	public void setAuthorID(String authorID)
-	{
-		this.authorID = authorID;
-	}
+	public String getAuthorID() { return authorID; }
+
+	public void setAuthorID(String authorID) { this.authorID = authorID; }
+
+	public String getEditToken() { return editToken; }
 
 	public String getEtag()
 	{
@@ -107,5 +99,11 @@ public class ExperienceEntry
 	public void setCreated(Date created)
 	{
 		this.created = created;
+	}
+
+
+	public void setEditToken(final String editToken)
+	{
+		this.editToken = editToken;
 	}
 }

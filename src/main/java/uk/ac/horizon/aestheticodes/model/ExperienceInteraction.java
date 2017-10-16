@@ -40,10 +40,7 @@ public class ExperienceInteraction
 		this.uri = uri;
 	}
 
-	public int getInteractions()
-	{
-		return interactions;
-	}
+	public int getInteractions() { return interactions; }
 
 	public String getUri()
 	{
