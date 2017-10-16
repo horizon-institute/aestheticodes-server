@@ -36,16 +36,13 @@ apply plugin: 'war'
 apply plugin: 'idea'
 apply plugin: 'com.google.cloud.tools.appengine'
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
-
 dependencies {
-    compile 'com.google.appengine:appengine-api-1.0-sdk:1.9.53'
+    compile 'com.google.appengine:appengine-api-1.0-sdk:1.9.54'
     compile 'com.google.api-client:google-api-client:1.22.0'
     compile 'com.google.http-client:google-http-client-gson:1.22.0'
     compile 'com.google.appengine.tools:appengine-gcs-client:0.6'
     compile 'com.github.spullara.mustache.java:compiler:0.8.18'
-    compile 'javax.servlet:servlet-api:2.5'
+    compile 'javax.servlet:javax.servlet-api:3.1.0'
     compile 'com.googlecode.objectify:objectify:5.1.6'
     compile 'com.google.code.gson:gson:2.8.0'
 }

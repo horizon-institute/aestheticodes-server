@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Artcodes recognises a different marker scheme that allows the
   ~ creation of aesthetically pleasing, even beautiful, codes.
   ~ Copyright (C) 2013-2015  The University of Nottingham
@@ -19,16 +18,17 @@
   -->
 
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-    <application>aestheticodes</application>
-    <version>1</version>
-    <threadsafe>true</threadsafe>
+	<application>aestheticodes</application>
+	<version>1</version>
+	<threadsafe>true</threadsafe>
+	<runtime>java8</runtime>
 
-    <system-properties>
-        <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
-    </system-properties>
+	<system-properties>
+		<property name="java.util.logging.config.file" value="WEB-INF/logging.properties" />
+	</system-properties>
 
-    <static-files>
-        <include path="/images/**.*"/>
-        <include path="/.well-known/**"/>
-    </static-files>
+	<static-files>
+		<include path="/images/**.*" />
+		<include path="/.well-known/**" />
+	</static-files>
 </appengine-web-app>
