@@ -19,21 +19,13 @@
 
 package uk.ac.horizon.artcodes.server.christmas;
 
-import com.google.appengine.tools.cloudstorage.*;
-import com.google.common.hash.Hashing;
-import com.google.common.hash.HashingOutputStream;
-import com.google.common.io.ByteStreams;
-import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.net.URLConnection;
-import java.nio.channels.Channels;
 
-public class ImageServlet extends ArtcodeServlet
+public class ImageServlet extends uk.ac.horizon.artcodes.server.ImageServlet
 {
 	private static final int image_size = 512 * 1024;
 
@@ -41,6 +33,12 @@ public class ImageServlet extends ArtcodeServlet
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		doPut(request, response);
+	}
+
+	@Override
+	protected String[] getMethods()
+	{
+		return new String[]{"OPTIONS", "GET", "PUT", "POST", "HEAD"};
 	}
 
 	@Override
@@ -55,49 +53,12 @@ public class ImageServlet extends ArtcodeServlet
 
 			verifyApp(request);
 			final String id = getImageID(request);
-			final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-			final GcsFilename filename = new GcsFilename(request.getServerName(), id);
-
-			final GcsFileMetadata metadata = gcsService.getMetadata(filename);
-			if (metadata != null)
-			{
-				throw new HTTPException(HttpServletResponse.SC_FORBIDDEN, "Cannot modify");
-			}
-
-			final BufferedInputStream inputStream = new BufferedInputStream(request.getInputStream());
-			final String mimetype = URLConnection.guessContentTypeFromStream(inputStream);
-			if (mimetype == null)
-			{
-				throw new HTTPException(HttpServletResponse.SC_BAD_REQUEST, "Unrecognised image type");
-			}
-
-			final GcsFileOptions.Builder fileOptionsBuilder = new GcsFileOptions.Builder();
-			fileOptionsBuilder.mimeType(mimetype);
-			final GcsFileOptions fileOptions = fileOptionsBuilder.build();
-			final GcsOutputChannel outputChannel = gcsService.createOrReplace(filename, fileOptions);
-
-			final HashingOutputStream outputStream = new HashingOutputStream(Hashing.sha256(), Channels.newOutputStream(outputChannel));
-			ByteStreams.copy(inputStream, outputStream);
-
-			String hash = outputStream.hash().toString();
-			if (!hash.equals(id))
-			{
-				gcsService.delete(filename);
-				throw new HTTPException(HttpServletResponse.SC_BAD_REQUEST, "Invalid hash");
-			}
-
-			outputStream.close();
-			outputChannel.close();
+			readImage(id, request);
+			setAccessControlHeaders(response);
 		}
 		catch (HTTPException e)
 		{
 			e.writeTo(response);
 		}
-	}
-
-	private String getImageID(HttpServletRequest req)
-	{
-		String url = req.getRequestURL().toString();
-		return url.substring(url.lastIndexOf("/") + 1);
 	}
 }

@@ -94,6 +94,8 @@ public class RecommendedServlet extends ArtcodeServlet
 		}
 	}
 
+	private static final int NEARBY_COUNT = 4;
+	private static final int POPULAR_COUNT = 6;
 	private static final int nearbyDistance = 100;
 	private static final Logger logger = Logger.getLogger(RecommendedServlet.class.getSimpleName());
 
@@ -101,9 +103,9 @@ public class RecommendedServlet extends ArtcodeServlet
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		final Result result = new Result();
-		result.add("nearby", getNearbyExperiences(getLocation(req), 4));
+		result.add("nearby", getNearbyExperiences(getLocation(req)));
 		result.add("featured", getFeaturedExperiences());
-		result.add("popular", getPopularExperiences(6));
+		result.add("popular", getPopularExperiences());
 		resp.addHeader("Cache-Control", "max-age=60, stale-while-revalidate=604800");
 		result.write(resp);
 	}
@@ -139,7 +141,7 @@ public class RecommendedServlet extends ArtcodeServlet
 		return Collections.emptyList();
 	}
 
-	private List<String> getNearbyExperiences(LatLng location, int count)
+	private List<String> getNearbyExperiences(LatLng location)
 	{
 		if (location != null)
 		{
@@ -151,7 +153,7 @@ public class RecommendedServlet extends ArtcodeServlet
 
 			final List<Nearby> nearby = new ArrayList<>();
 			final List<ExperienceAvailability> availabilities = DataStore.load().type(ExperienceAvailability.class)
-					.filter("lat !=", null)
+					.filter("lat >", null)
 					.list();
 
 			logger.info("Found " + availabilities.size() + " location results");
@@ -175,20 +177,13 @@ public class RecommendedServlet extends ArtcodeServlet
 			}
 			logger.info("Found " + nearby.size() + " locations near to " + location);
 
-			Collections.sort(nearby, new Comparator<Nearby>()
-			{
-				@Override
-				public int compare(Nearby o1, Nearby o2)
-				{
-					return (int) ((o1.distance - o2.distance) * 10000);
-				}
-			});
+			nearby.sort((o1, o2) -> (int) ((o1.distance - o2.distance) * 10000));
 
 			final List<String> nearbyIDs = new ArrayList<>();
 			for (Nearby nearbyID : nearby)
 			{
 				nearbyIDs.add(nearbyID.uri);
-				if (nearbyIDs.size() >= count)
+				if (nearbyIDs.size() >= NEARBY_COUNT)
 				{
 					break;
 				}
@@ -202,7 +197,7 @@ public class RecommendedServlet extends ArtcodeServlet
 		return Collections.emptyList();
 	}
 
-	private List<String> getPopularExperiences(int count)
+	private List<String> getPopularExperiences()
 	{
 		final ExperienceCache cache = DataStore.load().type(ExperienceCache.class).id("popular").now();
 		if (cache != null)
@@ -210,9 +205,9 @@ public class RecommendedServlet extends ArtcodeServlet
 			return cache.getExperiences();
 		}
 		final List<ExperienceInteraction> interactions = DataStore.load().type(ExperienceInteraction.class)
-				.filter("interactions !=", 0)
+				.filter("interactions >", 0)
 				.order("-interactions")
-				.limit(count)
+				.limit(POPULAR_COUNT * 2)
 				.list();
 
 		final List<String> popularIDs = new ArrayList<>();
@@ -239,7 +234,8 @@ public class RecommendedServlet extends ArtcodeServlet
 						}
 					}
 				}
-				if(popularIDs.size() >= count) {
+				if (popularIDs.size() >= POPULAR_COUNT)
+				{
 					break;
 				}
 			}

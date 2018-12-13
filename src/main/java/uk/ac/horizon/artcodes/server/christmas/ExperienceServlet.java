@@ -19,37 +19,31 @@
 
 package uk.ac.horizon.artcodes.server.christmas;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
-import com.google.gson.Gson;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
+import com.google.api.client.util.IOUtils;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.ExperienceItems;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.UUID;
+import java.util.logging.Logger;
+
 public class ExperienceServlet extends ArtcodeServlet
 {
 	private static final Logger logger = Logger.getLogger(ExperienceServlet.class.getSimpleName());
-	private final Mustache mustache;
 
 	public ExperienceServlet()
 	{
-		final MustacheFactory mustacheFactory = new DefaultMustacheFactory();
-		mustache = mustacheFactory.compile("christmas.mustache");
+	}
+
+	@Override
+	protected String[] getMethods()
+	{
+		return new String[]{"OPTIONS", "GET", "PUT", "POST"};
 	}
 
 	private static ExperienceItems getExperience(String experienceID, HttpServletRequest request) throws IOException
@@ -72,22 +66,7 @@ public class ExperienceServlet extends ArtcodeServlet
 			final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
 			if (entry != null)
 			{
-				final String userAgent = request.getHeader("User-Agent").toLowerCase();
-				if (userAgent.startsWith("facebook") || userAgent.startsWith("twitter") || "html".equals(request.getParameter("format")))
-				{
-					final ExperienceDetails experience = new Gson().fromJson(entry.getJson(), ExperienceDetails.class);
-					final Map<String, String> variables = new HashMap<>();
-					variables.put("title", "Christmas with Artcodes, from " + experience.getName());
-					logger.info(experience.getName());
-					variables.put("author", experience.getName());
-					variables.put("description", "This is a personalised layer for the Artcodes advent calendar. The advent calendar is a beautifully illustrated, freestanding advent calendar. Traditional in style yet features innovative scannable Artcodes that open digital content.");
-
-					response.setCharacterEncoding("UTF-8");
-					response.setContentType("text/html");
-					writeExperienceCacheHeaders(response, entry);
-					mustache.execute(response.getWriter(), variables).flush();
-				}
-				else
+				if ("json".equals(request.getParameter("format")))
 				{
 					if (request.getHeader("If-None-Match") != null && request.getHeader("If-None-Match").equals(entry.getEtag()))
 					{
@@ -95,8 +74,14 @@ public class ExperienceServlet extends ArtcodeServlet
 					}
 					else
 					{
+						setAccessControlHeaders(response);
 						writeExperience(response, entry);
 					}
+				}
+				else
+				{
+					response.setContentType("text/html");
+					IOUtils.copy(getServletContext().getResourceAsStream("/christmas.html"), response.getOutputStream());
 				}
 			}
 			else
@@ -110,7 +95,7 @@ public class ExperienceServlet extends ArtcodeServlet
 		}
 	}
 
-	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		try
 		{
@@ -129,10 +114,12 @@ public class ExperienceServlet extends ArtcodeServlet
 				}
 
 				final ExperienceItems items = getExperience(experienceID, request);
+				items.getEntry().setEditToken(editToken);
 				items.save();
 
 				logger.info("Updated experience " + items.getEntry().getPublicID());
 
+				setAccessControlHeaders(response);
 				writeExperience(response, items.getEntry());
 			}
 			else
@@ -147,7 +134,7 @@ public class ExperienceServlet extends ArtcodeServlet
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		try
 		{
@@ -160,6 +147,7 @@ public class ExperienceServlet extends ArtcodeServlet
 			logger.info("Created experience " + items.getEntry().getPublicID());
 
 			response.addHeader("Edit-Token", items.getEntry().getEditToken());
+			setAccessControlHeaders(response);
 			writeExperience(response, items.getEntry());
 		}
 		catch (HTTPException e)

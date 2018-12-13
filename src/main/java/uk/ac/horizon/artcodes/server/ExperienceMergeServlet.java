@@ -23,20 +23,17 @@ import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Map;
-import java.util.logging.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.googlecode.objectify.VoidWork;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Map;
+import java.util.logging.Logger;
 
 public class ExperienceMergeServlet extends ArtcodeServlet
 {
@@ -76,13 +73,9 @@ public class ExperienceMergeServlet extends ArtcodeServlet
 				mergedExperience.setJson(finalJson);
 				mergedExperience.setEtag(Hashing.md5().hashString(finalJson, Charset.forName("UTF-8")).toString());
 
-				DataStore.get().transact(new VoidWork()
+				DataStore.get().transact(() ->
 				{
-					@Override
-					public void vrun()
-					{
-						DataStore.save().entity(mergedExperience);
-					}
+					DataStore.save().entity(mergedExperience);
 				});
 				writeExperience(response, mergedExperience);
 			}

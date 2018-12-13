@@ -35,7 +35,7 @@ public class InteractionServlet extends ArtcodeServlet
 	private static final Logger logger = Logger.getLogger(InteractionServlet.class.getName());
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	{
 		try
 		{

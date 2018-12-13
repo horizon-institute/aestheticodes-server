@@ -19,33 +19,22 @@
 
 package uk.ac.horizon.artcodes.server;
 
-import com.google.appengine.api.search.Index;
-import com.google.appengine.api.search.IndexSpec;
-import com.google.appengine.api.search.MatchScorer;
-import com.google.appengine.api.search.Query;
-import com.google.appengine.api.search.QueryOptions;
-import com.google.appengine.api.search.Results;
-import com.google.appengine.api.search.ScoredDocument;
-import com.google.appengine.api.search.SearchServiceFactory;
-import com.google.appengine.api.search.SortOptions;
+import com.google.appengine.api.search.*;
 import com.google.appengine.api.users.User;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.ExperienceItems;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 public class SearchServlet extends ArtcodeServlet
 {

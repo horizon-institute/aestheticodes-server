@@ -23,7 +23,6 @@ import com.google.appengine.api.search.Document;
 import com.google.appengine.api.search.Field;
 import com.google.common.hash.Hashing;
 import com.google.gson.*;
-import com.googlecode.objectify.VoidWork;
 import uk.ac.horizon.aestheticodes.model.ExperienceAvailability;
 import uk.ac.horizon.aestheticodes.model.ExperienceCache;
 import uk.ac.horizon.aestheticodes.model.ExperienceDetails;
@@ -190,17 +189,13 @@ public class ExperienceItems
 
 		entry.modified();
 
-		DataStore.get().transact(new VoidWork()
+		DataStore.get().transact(() ->
 		{
-			@Override
-			public void vrun()
+			DataStore.get().delete().entities(existingAvails);
+			DataStore.save().entity(entry);
+			if (!availabilities.isEmpty())
 			{
-				DataStore.get().delete().entities(existingAvails);
-				DataStore.save().entity(entry);
-				if (!availabilities.isEmpty())
-				{
-					DataStore.save().entities(availabilities);
-				}
+				DataStore.save().entities(availabilities);
 			}
 		});
 

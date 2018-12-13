@@ -20,7 +20,6 @@
 package uk.ac.horizon.artcodes.server;
 
 import com.google.appengine.api.users.User;
-import com.googlecode.objectify.VoidWork;
 import uk.ac.horizon.aestheticodes.model.ExperienceEntry;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
@@ -62,13 +61,8 @@ public class ExperiencesServlet extends ArtcodeServlet
 			for (final ExperienceEntry entry : oldEntries)
 			{
 				entry.setAuthorID(user.getUserId());
-				DataStore.get().transact(new VoidWork()
-				{
-					@Override
-					public void vrun()
-					{
-						DataStore.save().entity(entry);
-					}
+				DataStore.get().transact(() -> {
+					DataStore.save().entity(entry);
 				});
 				list.add(entry.getPublicID());
 			}

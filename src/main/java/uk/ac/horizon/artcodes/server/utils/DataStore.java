@@ -20,23 +20,12 @@
 package uk.ac.horizon.artcodes.server.utils;
 
 import com.googlecode.objectify.Objectify;
-import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Loader;
 import com.googlecode.objectify.cmd.Saver;
-import uk.ac.horizon.aestheticodes.model.*;
 
 public class DataStore
 {
-	static
-	{
-		factory().register(ExperienceEntry.class);
-		factory().register(ExperienceAvailability.class);
-		factory().register(ExperienceInteraction.class);
-		factory().register(ExperienceDeleted.class);
-		factory().register(ExperienceCache.class);
-	}
-
 	public static Loader load() { return get().load(); }
 
 	public static Saver save() { return get().save(); }
@@ -44,10 +33,5 @@ public class DataStore
 	public static Objectify get()
 	{
 		return ObjectifyService.ofy();
-	}
-
-	private static ObjectifyFactory factory()
-	{
-		return ObjectifyService.factory();
 	}
 }

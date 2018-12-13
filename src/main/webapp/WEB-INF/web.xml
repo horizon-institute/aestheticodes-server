@@ -19,124 +19,128 @@
   -->
 
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
-    <servlet>
-        <servlet-name>mergeExperience</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.ExperienceMergeServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>mergeExperience</servlet-name>
-        <url-pattern>/merge</url-pattern>
-    </servlet-mapping>
+	<servlet>
+		<servlet-name>mergeExperience</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.ExperienceMergeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>mergeExperience</servlet-name>
+		<url-pattern>/merge</url-pattern>
+	</servlet-mapping>
 
-    <servlet>
-        <servlet-name>experiencePage</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.ExperiencePageServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>experiencePage</servlet-name>
-        <url-pattern>/experience/info/*</url-pattern>
-    </servlet-mapping>
+	<servlet>
+		<servlet-name>experiencePage</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.ExperiencePageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>experiencePage</servlet-name>
+		<url-pattern>/experience/info/*</url-pattern>
+	</servlet-mapping>
 
-    <servlet>
-        <servlet-name>experience</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.ExperienceServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>experience</servlet-name>
-        <url-pattern>/experience/*</url-pattern>
-    </servlet-mapping>
-
-
-    <servlet>
-        <servlet-name>christmas-experience</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.christmas.ExperienceServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>christmas-experience</servlet-name>
-        <url-pattern>christmas/*</url-pattern>
-    </servlet-mapping>
+	<servlet>
+		<servlet-name>experience</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.ExperienceServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>experience</servlet-name>
+		<url-pattern>/experience/*</url-pattern>
+	</servlet-mapping>
 
 
-    <servlet>
-        <servlet-name>search</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.SearchServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>search</servlet-name>
-        <url-pattern>/search</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>experiences</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.ExperiencesServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>experiences</servlet-name>
-        <url-pattern>/experiences</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>recommended</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.RecommendedServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>recommended</servlet-name>
-        <url-pattern>/recommended</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>interaction</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.InteractionServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>interaction</servlet-name>
-        <url-pattern>/interaction</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>christmas-image</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.christmas.ImageServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>christmas-image</servlet-name>
-        <url-pattern>/ximage/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>image</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.ImageServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>image</servlet-name>
-        <url-pattern>/image/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>old_experiences</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.OldExperienceServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>old_experiences</servlet-name>
-        <url-pattern>/_ah/api/experiences/v1/experiences</url-pattern>
-    </servlet-mapping>
+	<servlet>
+		<servlet-name>christmas-experience</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.christmas.ExperienceServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>christmas-experience</servlet-name>
+		<url-pattern>christmas/*</url-pattern>
+	</servlet-mapping>
 
 
-    <servlet>
-        <servlet-name>wellKnown</servlet-name>
-        <servlet-class>uk.ac.horizon.artcodes.server.WellKnownServlet</servlet-class>
-    </servlet>
+	<servlet>
+		<servlet-name>search</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.SearchServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>search</servlet-name>
+		<url-pattern>/search</url-pattern>
+	</servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>wellKnown</servlet-name>
-        <url-pattern>/.well-known/*</url-pattern>
-    </servlet-mapping>
+	<servlet>
+		<servlet-name>experiences</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.ExperiencesServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>experiences</servlet-name>
+		<url-pattern>/experiences</url-pattern>
+	</servlet-mapping>
 
-    <filter>
-        <filter-name>ObjectifyFilter</filter-name>
-        <filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>ObjectifyFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+	<servlet>
+		<servlet-name>recommended</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.RecommendedServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>recommended</servlet-name>
+		<url-pattern>/recommended</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>interaction</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.InteractionServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>interaction</servlet-name>
+		<url-pattern>/interaction</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>christmas-image</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.christmas.ImageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>christmas-image</servlet-name>
+		<url-pattern>/ximage/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>image</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.ImageServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>image</servlet-name>
+		<url-pattern>/image/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>old_experiences</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.OldExperienceServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>old_experiences</servlet-name>
+		<url-pattern>/_ah/api/experiences/v1/experiences</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>wellKnown</servlet-name>
+		<servlet-class>uk.ac.horizon.artcodes.server.WellKnownServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>wellKnown</servlet-name>
+		<url-pattern>/.well-known/*</url-pattern>
+	</servlet-mapping>
+
+	<listener>
+		<listener-class>uk.ac.horizon.artcodes.server.BootStrapper</listener-class>
+	</listener>
+
+	<filter>
+		<filter-name>ObjectifyFilter</filter-name>
+		<filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>ObjectifyFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 </web-app>

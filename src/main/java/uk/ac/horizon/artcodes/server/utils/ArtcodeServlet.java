@@ -139,6 +139,26 @@ public abstract class ArtcodeServlet extends HttpServlet
 		throw new HTTPException(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
 	}
 
+	@Override
+	protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+	{
+		setAccessControlHeaders(resp);
+		resp.setStatus(HttpServletResponse.SC_OK);
+	}
+
+	protected String[] getMethods()
+	{
+		return new String[]{"OPTIONS", "GET"};
+	}
+
+	protected void setAccessControlHeaders(HttpServletResponse resp)
+	{
+		resp.setHeader("Access-Control-Allow-Origin", "*");
+		resp.setHeader("Access-Control-Allow-Credentials", "true");
+		resp.setHeader("Access-Control-Allow-Methods", String.join(", ", getMethods()));
+		resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization, Origin, Referer, User-Agent");
+	}
+
 	protected static User getUser(HttpServletRequest request)
 	{
 		try

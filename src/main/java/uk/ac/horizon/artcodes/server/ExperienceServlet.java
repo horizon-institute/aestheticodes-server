@@ -24,14 +24,12 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.appengine.api.users.User;
 import com.google.gson.Gson;
-import com.googlecode.objectify.VoidWork;
 import uk.ac.horizon.aestheticodes.model.*;
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.DataStore;
 import uk.ac.horizon.artcodes.server.utils.ExperienceItems;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -50,7 +48,13 @@ public class ExperienceServlet extends ArtcodeServlet
 	}
 
 	@Override
-	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	protected String[] getMethods()
+	{
+		return new String[] {"GET", "OPTIONS", "DELETE", "POST"};
+	}
+
+	@Override
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response)
 	{
 		try
 		{
@@ -80,20 +84,17 @@ public class ExperienceServlet extends ArtcodeServlet
 
 			SearchServlet.getIndex().delete(entry.getPublicID());
 
-			DataStore.get().transact(new VoidWork()
+			DataStore.get().transact(() ->
 			{
-				@Override
-				public void vrun()
+				if (interaction != null)
 				{
-					if (interaction != null)
-					{
-						DataStore.get().delete().entity(interaction);
-					}
-					DataStore.get().delete().type(ExperienceEntry.class).id(experienceID);
-					DataStore.get().delete().entities(existingAvails);
-					DataStore.get().delete().entities(toDelete);
-					DataStore.get().save().entity(deleted);
+					DataStore.get().delete().entity(interaction);
 				}
+				DataStore.get().delete().type(ExperienceEntry.class).id(experienceID);
+				DataStore.get().delete().entities(existingAvails);
+				DataStore.get().delete().entities(toDelete);
+				DataStore.get().save().entity(deleted);
+
 			});
 		}
 		catch (HTTPException e)
@@ -139,6 +140,7 @@ public class ExperienceServlet extends ArtcodeServlet
 
 					response.setCharacterEncoding("UTF-8");
 					response.setContentType("text/html");
+					setAccessControlHeaders(response);
 					writeExperienceCacheHeaders(response, entry);
 					mustache.execute(response.getWriter(), variables).flush();
 				}
@@ -155,7 +157,7 @@ public class ExperienceServlet extends ArtcodeServlet
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		try
 		{
@@ -168,6 +170,7 @@ public class ExperienceServlet extends ArtcodeServlet
 
 			logger.info("Created experience " + items.getEntry().getPublicID());
 
+			setAccessControlHeaders(response);
 			writeExperience(response, items.getEntry());
 		}
 		catch (HTTPException e)
@@ -177,7 +180,7 @@ public class ExperienceServlet extends ArtcodeServlet
 	}
 
 	@Override
-	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		try
 		{

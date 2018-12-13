@@ -43,9 +43,7 @@ public class ImageServlet extends ArtcodeServlet
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		final String id = getImageID(req);
-		final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-		final GcsFilename filename = new GcsFilename(req.getServerName(), id);
-		final GcsFileMetadata metadata = gcsService.getMetadata(filename);
+		final GcsFileMetadata metadata = getMetadata(req.getServerName(), id);
 		if (metadata == null)
 		{
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -55,8 +53,59 @@ public class ImageServlet extends ArtcodeServlet
 			BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 			BlobKey blobKey = blobstoreService.createGsBlobKey("/gs/" + req.getServerName() + "/" + id);
 			resp.addHeader("Cache-Control", "max-age=31556926");
+			setAccessControlHeaders(resp);
 			blobstoreService.serve(blobKey, resp);
 		}
+	}
+
+	public static GcsFileMetadata getMetadata(String serverName, String id) throws IOException
+	{
+		final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
+		final GcsFilename filename = new GcsFilename(serverName, id);
+		return gcsService.getMetadata(filename);
+	}
+
+	protected void readImage(String id, HttpServletRequest request) throws IOException
+	{
+		final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
+		final GcsFilename filename = new GcsFilename(request.getServerName(), id);
+
+		final GcsFileMetadata metadata = gcsService.getMetadata(filename);
+		if (metadata != null)
+		{
+			throw new HTTPException(HttpServletResponse.SC_FORBIDDEN, "Cannot modify");
+		}
+
+		final BufferedInputStream inputStream = new BufferedInputStream(request.getInputStream());
+		final String mimetype = URLConnection.guessContentTypeFromStream(inputStream);
+		if (mimetype == null)
+		{
+			throw new HTTPException(HttpServletResponse.SC_BAD_REQUEST, "Unrecognised image type");
+		}
+
+		final GcsFileOptions.Builder fileOptionsBuilder = new GcsFileOptions.Builder();
+		fileOptionsBuilder.mimeType(mimetype);
+		final GcsFileOptions fileOptions = fileOptionsBuilder.build();
+		final GcsOutputChannel outputChannel = gcsService.createOrReplace(filename, fileOptions);
+
+		final HashingOutputStream outputStream = new HashingOutputStream(Hashing.sha256(), Channels.newOutputStream(outputChannel));
+		ByteStreams.copy(inputStream, outputStream);
+
+		String hash = outputStream.hash().toString();
+		if (!hash.equals(id))
+		{
+			gcsService.delete(filename);
+			throw new HTTPException(HttpServletResponse.SC_BAD_REQUEST, "Invalid hash");
+		}
+
+		outputStream.close();
+		outputChannel.close();
+	}
+
+	@Override
+	protected String[] getMethods()
+	{
+		return new String[]{"OPTIONS", "GET", "PUT", "HEAD"};
 	}
 
 	@Override
@@ -71,39 +120,8 @@ public class ImageServlet extends ArtcodeServlet
 
 			verifyUser(getUser(request));
 			final String id = getImageID(request);
-			final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-			final GcsFilename filename = new GcsFilename(request.getServerName(), id);
-
-			final GcsFileMetadata metadata = gcsService.getMetadata(filename);
-			if (metadata != null)
-			{
-				throw new HTTPException(HttpServletResponse.SC_FORBIDDEN, "Cannot modify");
-			}
-
-			final BufferedInputStream inputStream = new BufferedInputStream(request.getInputStream());
-			final String mimetype = URLConnection.guessContentTypeFromStream(inputStream);
-			if (mimetype == null)
-			{
-				throw new HTTPException(HttpServletResponse.SC_BAD_REQUEST, "Unrecognised image type");
-			}
-
-			final GcsFileOptions.Builder fileOptionsBuilder = new GcsFileOptions.Builder();
-			fileOptionsBuilder.mimeType(mimetype);
-			final GcsFileOptions fileOptions = fileOptionsBuilder.build();
-			final GcsOutputChannel outputChannel = gcsService.createOrReplace(filename, fileOptions);
-
-			final HashingOutputStream outputStream = new HashingOutputStream(Hashing.sha256(), Channels.newOutputStream(outputChannel));
-			ByteStreams.copy(inputStream, outputStream);
-
-			String hash = outputStream.hash().toString();
-			if (!hash.equals(id))
-			{
-				gcsService.delete(filename);
-				throw new HTTPException(HttpServletResponse.SC_BAD_REQUEST, "Invalid hash");
-			}
-
-			outputStream.close();
-			outputChannel.close();
+			readImage(id, request);
+			setAccessControlHeaders(response);
 		}
 		catch (HTTPException e)
 		{
@@ -115,20 +133,20 @@ public class ImageServlet extends ArtcodeServlet
 	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		final String id = getImageID(req);
-		final GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-		final GcsFilename filename = new GcsFilename(req.getServerName(), id);
-		final GcsFileMetadata metadata = gcsService.getMetadata(filename);
+		final GcsFileMetadata metadata = getMetadata(req.getServerName(), id);
 		if (metadata == null)
 		{
+			setAccessControlHeaders(resp);
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 		else
 		{
+			setAccessControlHeaders(resp);
 			resp.setStatus(HttpServletResponse.SC_OK);
 		}
 	}
 
-	private String getImageID(HttpServletRequest req)
+	protected String getImageID(HttpServletRequest req)
 	{
 		String url = req.getRequestURL().toString();
 		return url.substring(url.lastIndexOf("/") + 1);
