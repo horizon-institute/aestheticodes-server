@@ -81,7 +81,7 @@ public class ExperienceServlet extends ArtcodeServlet
 				else
 				{
 					response.setContentType("text/html");
-					IOUtils.copy(getServletContext().getResourceAsStream("/christmas.html"), response.getOutputStream());
+					IOUtils.copy(ExperienceServlet.class.getResourceAsStream("/christmas.html"), response.getOutputStream());
 				}
 			}
 			else

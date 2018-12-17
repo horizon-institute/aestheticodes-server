@@ -20,7 +20,6 @@
 package uk.ac.horizon.artcodes.server;
 
 import com.google.api.client.util.IOUtils;
-
 import uk.ac.horizon.artcodes.server.utils.ArtcodeServlet;
 import uk.ac.horizon.artcodes.server.utils.HTTPException;
 
@@ -28,9 +27,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Logger;
 
 public class WellKnownServlet extends ArtcodeServlet
 {
+	private static final Logger logger = Logger.getLogger(WellKnownServlet.class.getSimpleName());
+
 	public WellKnownServlet() {}
 
 	@Override
@@ -41,7 +43,8 @@ public class WellKnownServlet extends ArtcodeServlet
 		InputStream inputStream = WellKnownServlet.class.getResourceAsStream(filepath);
 		if (inputStream != null)
 		{
-			// TODO Be more intelligent here
+			logger.info("Found " + filepath);
+			// TODO More intelligent mimetyping here
 			response.setContentType("application/json");
 			response.setCharacterEncoding("utf-8");
 			IOUtils.copy(inputStream, response.getOutputStream());
