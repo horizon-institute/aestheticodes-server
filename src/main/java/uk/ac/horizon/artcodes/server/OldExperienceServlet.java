@@ -46,7 +46,7 @@ public class OldExperienceServlet extends HttpServlet
 	}
 
 	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException
 	{
 		doGet(req, resp);
 	}

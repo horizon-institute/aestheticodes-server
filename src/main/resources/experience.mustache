@@ -1,139 +1,123 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/Article">
 <head>
-    <title>{{title}}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#336">
+	<title>{{title}}</title>
+	<meta name="viewport" content="width=800px, initial-scale=1">
+	<meta name="theme-color" content="#336">
 
-    <meta name="description" content="{{description}}"/>
+	<meta name="description" content="{{description}}"/>
 
-    <meta itemprop="name" content="{{title}}">
-    <meta itemprop="description" content="{{description}}">
-    <meta itemprop="image" content="{{image}}">
+	<meta itemprop="name" content="{{title}}">
+	<meta itemprop="description" content="{{description}}">
+	<meta itemprop="image" content="{{image}}">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="Artcodes">
-    <meta name="twitter:title" content="{{title}}">
-    <meta name="twitter:description" content="{{description}}">
-    <meta name="twitter:creator" content="{{author}}">
-    <meta name="twitter:image:src" content="{{image}}">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="Artcodes">
+	<meta name="twitter:title" content="{{title}}">
+	<meta name="twitter:description" content="{{description}}">
+	<meta name="twitter:creator" content="{{author}}">
+	<meta name="twitter:image:src" content="{{image}}">
 
-    <meta property="og:title" content="{{title}}"/>
-    <meta property="og:type" content="article"/>
-    <meta property="og:url" content="{{url}}"/>
-    <meta property="og:image" content="{{image}}"/>
-    <meta property="og:description" content="{{description}}"/>
-    <meta property="og:site_name" content="Artcodes"/>
-    <style>
-        body {
-            margin: 0px;
-            font-family: sans-serif;
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-box-align: start;
-            -webkit-align-items: flex-start;
-            align-items: flex-start;
-        }
+	<meta property="og:title" content="{{title}}"/>
+	<meta property="og:type" content="article"/>
+	<meta property="og:url" content="{{url}}"/>
+	<meta property="og:image" content="{{image}}"/>
+	<meta property="og:description" content="{{description}}"/>
+	<meta property="og:site_name" content="Artcodes"/>
+	<script defer src="/js/artcodes.js"></script>
+	<script defer>
+	window.addEventListener('load', () => {
+		window.artcodes.scan(document.getElementById('container'), {{{json}}})
+	})
+	</script>
+	<style>
+		body {
+			margin: 0;
+			font-family: sans-serif;
+			display: flex;
+			align-items: flex-start;
+		}
 
-        .icon {
-            max-height: 32px;
-            max-width: 32px;
-            margin-right: 16px;
-        }
+		.icon {
+			max-height: 32px;
+			max-width: 32px;
+			margin-right: 16px;
+		}
 
-        .title {
-            font-size: 150%;
-            font-weight: bold;
-            -webkit-box-flex: 1;
-            -webkit-flex: 1;
-            flex: 1;
-        }
+		.title {
+			font-size: 150%;
+			font-weight: bold;
+			flex: 1;
+		}
 
-        .content {
-            -webkit-box-flex: 1;
-            -webkit-flex: 1;
-            flex: 1;
-            margin: 16px;
-        }
+		.content {
+			flex: 1;
+			margin: 16px;
+		}
 
-        .desc {
-            text-align: justify;
-            margin-top: 16px;
-            margin-bottom: 16px;
-            white-space: pre-wrap;
-        }
+		.desc {
+			text-align: justify;
+			margin-top: 16px;
+			margin-bottom: 16px;
+			white-space: pre-wrap;
+		}
 
-        .apps {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: flex;
-            -webkit-box-align: center;
-            -webkit-align-items: center;
-            align-items: center;
-            -webkit-justify-content: center;
-            justify-content: center;
-        }
+		.apps {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+		}
 
-        .app {
-            margin: 20px;
-        }
+		.app {
+			margin: 20px;
+		}
 
-        .button {
-            text-decoration: none;
-            padding: 10px 20px;
-            background: #336;
-            border-radius: 4px;
-            color: #FFF;
-            margin-top: 16px;
-        }
+		@media screen and (max-width: 1024px) {
+			body {
+				flex-direction: column;
+			}
 
-        @media screen and (orientation: portrait) {
-            body {
-                display: block;
-            }
-
-            .image {
-                width: 100%;
-            }
-        }
-    </style>
-    <script language="javascript">
-        window.onload = function (e) {
-            if (/Android/i.test(navigator.userAgent)) {
-                document.getElementById('apapp').style.display = 'none';
-            }
-            else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                document.getElementById('goapp').style.display = 'none';
-            }
-        };
-    </script>
+			.image {
+				width: 100%;
+			}
+		}
+	</style>
+	<script>
+		window.onload = function () {
+			if (/Android/i.test(navigator.userAgent)) {
+				document.getElementById('apapp').style.display = 'none';
+			} else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+				document.getElementById('goapp').style.display = 'none';
+			}
+		};
+	</script>
 </head>
 <body>
-<img class="image" src="{{image}}"/>
-
+<div id="container">
+	<img class="image" src="{{image}}"/>
+</div>
 <div class="content">
-    <div style="display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center">
-        <img class="icon" src="{{icon}}"/>
+	<div style="display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center">
+		<img class="icon" src="{{icon}}"/>
 
-        <div class="title">{{title}}</div>
-    </div>
-    <div class="desc">{{description}}</div>
+		<div class="title">{{title}}</div>
+	</div>
+	<div class="desc">{{description}}</div>
 
-    <div class="apps">
-        <a id="goapp" class="app"
-           href="https://play.google.com/store/apps/details?id=uk.ac.horizon.aestheticodes&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1">
-            <img alt='Get it on Google Play'
-                 src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'
-                 height="60"/>
-        </a>
+	<div class="apps">
+		<a id="goapp" class="app"
+		   href="https://play.google.com/store/apps/details?id=uk.ac.horizon.aestheticodes&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1">
+			<img alt='Get it on Google Play'
+			     src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png'
+			     height="60"/>
+		</a>
 
-        <a id="apapp" href="https://itunes.apple.com/gb/app/artcodes/id703429621?mt=8">
-            <img src="//linkmaker.itunes.apple.com/assets/shared/badges/en-us/appstore-lrg.svg"
-                 width="135" height="40">
-        </a>
-    </div>
+		<a id="apapp" href="https://itunes.apple.com/gb/app/artcodes/id703429621?mt=8">
+			<img src="https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/appstore-lrg.svg"
+			     width="135" height="40">
+		</a>
+	</div>
 </div>
 </body>
-
 </html>

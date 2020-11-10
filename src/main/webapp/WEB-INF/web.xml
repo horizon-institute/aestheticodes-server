@@ -19,6 +19,16 @@
   -->
 
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>everything</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		<user-data-constraint>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+
 	<servlet>
 		<servlet-name>mergeExperience</servlet-name>
 		<servlet-class>uk.ac.horizon.artcodes.server.ExperienceMergeServlet</servlet-class>
@@ -45,7 +55,6 @@
 		<servlet-name>experience</servlet-name>
 		<url-pattern>/experience/*</url-pattern>
 	</servlet-mapping>
-
 
 	<servlet>
 		<servlet-name>christmas-experience</servlet-name>

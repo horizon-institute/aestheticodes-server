@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 
 public class RecommendedServlet extends ArtcodeServlet
 {
-	private class Nearby
+	private static class Nearby
 	{
 		private final String uri;
 		private final double distance;
@@ -46,7 +46,7 @@ public class RecommendedServlet extends ArtcodeServlet
 		}
 	}
 
-	private class LatLng
+	private static class LatLng
 	{
 		private static final double precision = 1000d;
 		private final double latitude;
@@ -65,7 +65,7 @@ public class RecommendedServlet extends ArtcodeServlet
 		}
 	}
 
-	private class Result
+	private static class Result
 	{
 		private final Set<String> ids = new HashSet<>();
 		private final Map<String, List<String>> result = new HashMap<>();

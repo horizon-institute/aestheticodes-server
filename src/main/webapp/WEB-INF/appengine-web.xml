@@ -28,6 +28,7 @@
 	</system-properties>
 
 	<static-files>
+		<include path="/js/**" />
 		<include path="/images/**.*" />
 		<include path="/.well-known/**" />
 	</static-files>

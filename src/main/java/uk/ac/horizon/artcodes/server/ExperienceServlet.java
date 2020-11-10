@@ -116,6 +116,7 @@ public class ExperienceServlet extends ArtcodeServlet
 			final ExperienceEntry entry = DataStore.load().type(ExperienceEntry.class).id(experienceID).now();
 			if (entry != null)
 			{
+				// TODO NullPointerException here. Handle missing User-Agent
 				final String userAgent = request.getHeader("User-Agent").toLowerCase();
 				if (userAgent.startsWith("artcodes/") || "json".equals(request.getParameter("format")))
 				{
@@ -137,6 +138,7 @@ public class ExperienceServlet extends ArtcodeServlet
 					variables.put("author", experience.getAuthor());
 					variables.put("image", experience.getImage());
 					variables.put("icon", experience.getIcon());
+					variables.put("json", entry.getJson());
 
 					response.setCharacterEncoding("UTF-8");
 					response.setContentType("text/html");

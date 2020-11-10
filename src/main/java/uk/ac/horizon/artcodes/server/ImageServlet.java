@@ -134,14 +134,13 @@ public class ImageServlet extends ArtcodeServlet
 	{
 		final String id = getImageID(req);
 		final GcsFileMetadata metadata = getMetadata(req.getServerName(), id);
+		setAccessControlHeaders(resp);
 		if (metadata == null)
 		{
-			setAccessControlHeaders(resp);
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 		else
 		{
-			setAccessControlHeaders(resp);
 			resp.setStatus(HttpServletResponse.SC_OK);
 		}
 	}
