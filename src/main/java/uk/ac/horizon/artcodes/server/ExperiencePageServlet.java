@@ -58,6 +58,7 @@ public class ExperiencePageServlet extends ArtcodeServlet
 			{
 				final ExperienceDetails experience = new Gson().fromJson(entry.getJson(), ExperienceDetails.class);
 				variables.put("id", entry.getId());
+				variables.put("json", entry.getJson());
 				variables.put("title", experience.getName());
 				variables.put("description", experience.getDescription());
 				variables.put("author", experience.getAuthor());

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html itemscope itemtype="http://schema.org/Article">
+<html itemscope itemtype="http://schema.org/Article" xmlns="http://www.w3.org/1999/html">
 <head>
 	<title>{{title}}</title>
 	<meta name="viewport" content="width=800px, initial-scale=1">
@@ -24,11 +24,93 @@
 	<meta property="og:image" content="{{image}}"/>
 	<meta property="og:description" content="{{description}}"/>
 	<meta property="og:site_name" content="Artcodes"/>
-	<script defer src="/js/artcodes.js"></script>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+	<script defer src="/js/artcodes.umd.js"></script>
+	<script>
+		async function buildScan(root, experience) {
+			const canvas = document.getElementById('artc_canvasOutput')
+
+			const buttonAction = document.getElementById('artc_buttonAction')
+			const buttonStart = document.getElementById('artc_buttonStart')
+			const buttonStop = document.getElementById('artc_buttonStop')
+			buttonStart.classList.add('mdc-fab--exited')
+
+			const image = document.getElementById('artc_image')
+			if (experience.image != null && experience.image !== '') {
+				image.src = experience.image
+				image.style.display = ''
+			} else {
+				image.style.display = 'none'
+				image.height = 600
+				image.style.backgroundColor = '#000'
+			}
+
+			const deviceSelect = document.getElementById('artc_deviceSelect')
+
+			try {
+				const scanner = await artcodes.createScanner(
+						experience,
+						{
+							opencvPath: '/js/opencv.js',
+							canvas: canvas,
+							deviceSelect: deviceSelect,
+							// debugView: true,
+							stateChanged: (state) => {
+								if (state === 1 /*Idle*/) {
+									image.style.display = ''
+									canvas.style.display = 'none'
+									buttonStop.style.display = 'none'
+									buttonStart.style.display = ''
+									buttonStart.classList.remove('mdc-fab--exited')
+								} else if (state === 0 /*Loading*/) {
+									image.style.display = ''
+									canvas.style.display = 'none'
+									buttonStop.style.display = 'none'
+									buttonStart.classList.add('mdc-fab--exited')
+								} else if (state === 2 /*Scanning*/) {
+									image.style.display = 'none'
+									canvas.style.display = ''
+									buttonStop.style.display = ''
+									buttonStart.classList.add('mdc-fab--exited')
+								}
+							},
+							markerChanged: (marker) => {
+								if (marker != null) {
+									buttonAction.innerText = marker.action.name || ''
+									buttonAction.classList.remove('mdc-fab--exited')
+									buttonAction.addEventListener('click', () => {
+										let url = marker.action.url
+										if (url) {
+											location.href = url
+										}
+									})
+								} else {
+									buttonAction.classList.add('mdc-fab--exited')
+								}
+							}
+						}
+				)
+
+				buttonStart.addEventListener('click', () => {
+					scanner.start()
+				})
+
+				buttonStop.addEventListener('click', () => {
+					scanner.stop()
+				})
+			} catch (e) {
+				image.style.display = ''
+				canvas.style.display = 'none'
+				buttonStop.style.display = 'none'
+				console.log(e)
+			}
+		}
+	</script>
 	<script defer>
-	window.addEventListener('load', () => {
-		window.artcodes.scan(document.getElementById('container'), {{{json}}})
-	})
+		window.addEventListener('load', () => {
+			buildScan(document.getElementById('container'), {{{json}}})
+		})
 	</script>
 	<style>
 		body {
@@ -55,6 +137,14 @@
 			margin: 16px;
 		}
 
+		#container {
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			flex: 1;
+			width: 50%;
+		}
+
 		.desc {
 			text-align: justify;
 			margin-top: 16px;
@@ -76,9 +166,10 @@
 		@media screen and (max-width: 1024px) {
 			body {
 				flex-direction: column;
+				align-items: stretch;
 			}
 
-			.image {
+			#container {
 				width: 100%;
 			}
 		}
@@ -95,7 +186,64 @@
 </head>
 <body>
 <div id="container">
-	<img class="image" src="{{image}}"/>
+	<img id="artc_image" src="{{image}}">
+	<canvas id="artc_canvasOutput" style="background-color: black; display: none"></canvas>
+	<div style="display: flex; padding: 10px">
+		<button id="artc_buttonAction" class="mdc-fab mdc-fab--extended mdc-fab--exited" style="display:none;">
+			<div class="mdc-fab__ripple"></div>
+			<span class="mdc-fab__label"></span>
+		</button>
+		<div style="flex: 1;"></div>
+		<select id="artc_deviceSelect" style="display: none"></select>
+		<div style="flex: 1;"></div>
+		<div style="position: relative">
+			<button id="artc_buttonStart" class="mdc-fab mdc-fab--extended mdc-fab--exited" style="display: none">
+				<div class="mdc-fab__ripple"></div>
+				<span class="material-icons mdc-fab__icon">camera_alt</span>
+				<span class="mdc-fab__label">Scan</span>
+			</button>
+			<button id="artc_buttonStop" class="mdc-button mdc-button--outlined" style="display: none">
+				<div class="mdc-button__ripple"></div>
+				<i class="material-icons mdc-button__icon" aria-hidden="true">stop</i>
+				<span class="mdc-button__label">Stop</span>
+			</button>
+			<div id="artc_loadingIndicator" class="mdc-circular-progress mdc-circular-progress--large"
+			     style="position: absolute; right: 0" role="progressbar">
+				<div class="mdc-circular-progress__determinate-container">
+					<svg class="mdc-circular-progress__determinate-circle-graphic" viewBox="0 0 48 48"
+					     xmlns="http://www.w3.org/2000/svg">
+						<circle class="mdc-circular-progress__determinate-circle" cx="24" cy="24" r="18"
+						        stroke-dasharray="113.097" stroke-dashoffset="113.097"/>
+					</svg>
+				</div>
+				<div class="mdc-circular-progress__indeterminate-container">
+					<div class="mdc-circular-progress__spinner-layer">
+						<div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-left">
+							<svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48"
+							     xmlns="http://www.w3.org/2000/svg">
+								<circle cx="24" cy="24" r="18" stroke-dasharray="113.097"
+								        stroke-dashoffset="56.549"/>
+							</svg>
+						</div>
+						<div class="mdc-circular-progress__gap-patch">
+							<svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48"
+							     xmlns="http://www.w3.org/2000/svg">
+								<circle cx="24" cy="24" r="18" stroke-dasharray="113.097"
+								        stroke-dashoffset="56.549"/>
+							</svg>
+						</div>
+						<div class="mdc-circular-progress__circle-clipper mdc-circular-progress__circle-right">
+							<svg class="mdc-circular-progress__indeterminate-circle-graphic" viewBox="0 0 48 48"
+							     xmlns="http://www.w3.org/2000/svg">
+								<circle cx="24" cy="24" r="18" stroke-dasharray="113.097"
+								        stroke-dashoffset="56.549"/>
+							</svg>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 <div class="content">
 	<div style="display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center">
@@ -114,8 +262,7 @@
 		</a>
 
 		<a id="apapp" href="https://itunes.apple.com/gb/app/artcodes/id703429621?mt=8">
-			<img src="https://linkmaker.itunes.apple.com/assets/shared/badges/en-us/appstore-lrg.svg"
-			     width="135" height="40">
+			<img src="/images/AppStoreBadge.svg" width="135" height="40">
 		</a>
 	</div>
 </div>
