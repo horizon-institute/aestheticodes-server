@@ -43,10 +43,13 @@ public abstract class ArtcodeServlet extends HttpServlet
 	private static final Logger logger = Logger.getLogger(ArtcodeServlet.class.getSimpleName());
 	private static final Set<String> allowedClients = new HashSet<>();
 	private static final OAuthService oauth = OAuthServiceFactory.getOAuthService();
-	private static final Properties properties = new Properties();
+	private static final String adminUser;
+	private static final String indexName;
+	private static final String scope;
 
 	static
 	{
+		final Properties properties = new Properties();
 		try
 		{
 			properties.load(ArtcodeServlet.class.getResourceAsStream("/oauth.properties"));
@@ -59,11 +62,14 @@ public abstract class ArtcodeServlet extends HttpServlet
 		allowedClients.add(properties.getProperty("web_Client_ID"));
 		allowedClients.add(properties.getProperty("android_Client_ID"));
 		allowedClients.add(properties.getProperty("ios_Client_ID"));
+		indexName = properties.getProperty("index");
+		adminUser = properties.getProperty("admin_user");
+		scope = properties.getProperty("scope");
 	}
 
 	protected static String getIndexName()
 	{
-		return properties.getProperty("index");
+		return indexName;
 	}
 
 	protected static void verifyUser(User user) throws HTTPException
@@ -98,7 +104,7 @@ public abstract class ArtcodeServlet extends HttpServlet
 
 	protected static boolean isAdmin(User user)
 	{
-		return user != null && user.getUserId() != null && user.getUserId().equals(properties.getProperty("admin_user"));
+		return user != null && user.getUserId() != null && user.getUserId().equals(adminUser);
 	}
 
 	protected static void writeJSON(HttpServletResponse resp, Object item) throws IOException
@@ -166,15 +172,14 @@ public abstract class ArtcodeServlet extends HttpServlet
 			final String authHeader = request.getHeader("Authorization");
 			if (authHeader != null && authHeader.startsWith("Bearer "))
 			{
-				String scope = properties.getProperty("scope");
-				final User user = oauth.getCurrentUser(scope);
+				final User user = oauth.getCurrentUser();
 				final String tokenAudience = oauth.getClientId(scope);
 				if (!allowedClients.contains(tokenAudience))
 				{
 					throw new OAuthRequestException("audience of token '" + tokenAudience + "' is not in allowed client list");
 				}
 
-				logger.info("Authenticated as " + user.getEmail() + " (" + user.getUserId() + ")");
+				logger.info("Authenticated as " + user.getNickname() + ", " + user.getEmail() + " (" + user.getUserId() + ")");
 
 				return user;
 			}
